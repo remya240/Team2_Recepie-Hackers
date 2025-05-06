@@ -1,5 +1,6 @@
 package scraping;
 
+import enums.CuisineCategory;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -142,5 +143,17 @@ public class RecipeDetails extends BaseClass{
 
 		return recipe;
 	}
+
+	public static CuisineCategory getCuisineCategory(String tag){
+		String clearedTag = tag.replaceAll("\\s+", "_");
+		for (CuisineCategory cuisineCategory : CuisineCategory.values()) {
+			if (clearedTag.toUpperCase().contains(cuisineCategory.name())) {
+				return cuisineCategory;
+			}
+		}
+		return CuisineCategory.INDIAN;
+
+	}
+
 }
 

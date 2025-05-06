@@ -53,6 +53,9 @@ public class Pagination extends BaseClass {
 				recipe.foodCategory = RecipeDetails.getFoodCategory(recipeName, recipeTag);
 				System.out.println("Food Category----" +recipe.foodCategory);
 				
+				recipe.cuisineCategory = RecipeDetails.getCuisineCategory(recipeTag);
+				System.out.println("recipe.cuisineCategory---"+recipe.cuisineCategory);
+				
 				recipe = RecipeDetails.getCookingTime(recipe);
 				RecipeDetails.getPreparationTime(recipe);
 				RecipeDetails.GetPreparationMethod(recipe);

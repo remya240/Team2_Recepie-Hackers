@@ -1,5 +1,6 @@
 package data;
 
+import enums.CuisineCategory;
 import enums.FoodCategory;
 import enums.RecipeCategory;
 
@@ -14,7 +15,7 @@ public class Recipe {
 	public String cookingTime;
 	public String tag;
 	public String noOfServings;
-	public String cuisineCategory;
+	public CuisineCategory cuisineCategory;
 	public String recipeDescription;
 	public String preparationMethod;
 	public String nutritionValue;
