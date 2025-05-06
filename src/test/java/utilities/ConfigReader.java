@@ -20,7 +20,7 @@ public class ConfigReader {
 			properties.load(input);
 			logger.info("Config properties loaded");
 		} catch (Exception e) {
-			logger.info("Exception in configrReader "+e);
+			logger.info("Exception in configrReader " + e);
 			e.printStackTrace();
 		}
 	}
@@ -29,13 +29,8 @@ public class ConfigReader {
 		return properties.getProperty("url");
 	}
 
-
-
-
 	public String getBrowser() {
 		return properties.getProperty("browser");
 	}
-	
 
 }
-
