@@ -4,6 +4,7 @@ import java.time.Duration;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.slf4j.Logger;
@@ -38,7 +39,17 @@ public class DriverFactory {
 
 	public WebDriver driverSetup(String browser) {
 		if (browser.equalsIgnoreCase("Chrome")) {
-			threadDriver.set(new ChromeDriver());
+			
+			ChromeOptions options = new ChromeOptions();
+			options.addArguments("--blink-settings=imagesEnabled=false");//disabling the images
+			options.addArguments("--disable-images");
+			///options.addArguments("--disable-javascript");
+			options.addArguments("--remote-allow-origins=*");
+			//options.addArguments("--headless");//executing in headless mode
+			options.addArguments("--disable-popup-blocking");
+			options.addArguments("--disable-notifications");
+			options.addArguments("--disable-extensions");
+			threadDriver.set(new ChromeDriver(options));
 		} else if (browser.equalsIgnoreCase("Firefox")) {
 			threadDriver.set(new FirefoxDriver());
 		} else if (browser.equalsIgnoreCase("Edge")) {
