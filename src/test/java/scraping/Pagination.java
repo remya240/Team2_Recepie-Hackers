@@ -64,9 +64,13 @@ public class Pagination extends BaseClass {
 				Thread.sleep(2000); // Consider using explicit waits instead
 				recipe = RecipeDetails.getCookingTime(recipe);
 				RecipeDetails.getPreparationTime(recipe);
+				RecipeDetails.getNoofserving(recipe);
+
 				RecipeDetails.GetPreparationMethod(recipe);
 				RecipeDetails.GetNuritientValue(recipe);
-
+				RecipeDetails.getRecipieIdandUrl(recipe);
+				RecipeDetails.getRecipieName(recipe);
+				RecipeDetails.getRecipieDescription(recipe);
 				// Add recipe to the list
 				lstRecipe.add(recipe);
 
@@ -110,8 +114,8 @@ public class Pagination extends BaseClass {
 				}
 
 				// Get actual page numbers (pagination buttons only)
-				List<WebElement> paginationLinks = driver.findElements(By.xpath(
-						"//ul[@class='pagination justify-content-center align-items-center']//a[@class='page-link' and not(contains(text(),'Next')) and not(contains(text(),'Previous'))]"));
+				List<WebElement> paginationLinks = driver
+						.findElements(By.xpath("//ul[@class='pagination justify-content-center align-items-center']"));
 
 				LoggerLoad.info("Total sub-pages found: " + paginationLinks.size());
 
@@ -120,11 +124,9 @@ public class Pagination extends BaseClass {
 						if (i != 1) {
 							LoggerLoad.info("Navigating to sub-page " + i);
 
-							WebElement subPageLink = driver.findElement(By.xpath(
-									"//ul[@class='pagination justify-content-center align-items-center']//a[@class='page-link' and text()='"
-											+ i + "']"));
+							WebElement subPageLink = driver.findElement(By.xpath("//body//main//li[" + i + "]"));
 							((JavascriptExecutor) driver).executeScript("arguments[0].click();", subPageLink);
-							Thread.sleep(2000);
+							Thread.sleep(2000); // consider replacing with WebDriverWait for stability
 						}
 
 						lstRecipe = GetRecipesOnPage(lstRecipe);
