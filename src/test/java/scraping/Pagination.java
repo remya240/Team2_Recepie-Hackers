@@ -1,143 +1,135 @@
 package scraping;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.Test;
 import data.Recipe;
+import driverManager.DriverFactory;
 import testBase.BaseClass;
 import utilities.LoggerLoad;
 
 public class Pagination extends BaseClass {
 
-	public String getRecipeID(String url) {
+	@Test
+	public void GetRecipesOnPage() throws InterruptedException {
+		System.out.println("$$$$$$");
+		WebDriver driver = DriverFactory.getDriverInstance();
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-		String[] parts = url.split("-");
-		String lastPart = parts[parts.length - 1];
-		String number = lastPart.substring(0, lastPart.length() - 1);
+		System.out.println("Current URL: " + driver.getCurrentUrl());
+		Thread.sleep(3000);
+		Recipe recipe = new Recipe();
 
-		System.out.println("RECIPE ID" + number); // Output:
-		return number;
-
-	}
-
-	public String getRecipeName(String url) {
-
-		String baseName = url.substring(url.lastIndexOf('/') + 1); // "paneer-masala-2404r"
-		String namePart = baseName.substring(0, baseName.lastIndexOf('-')); // "paneer-masala"
-
-		// Replace hyphens with spaces
-		String recipeName = namePart.replace("-", " ");
-		System.out.println("Recipe Name: " + recipeName);
-		return recipeName;
-	}
-
-	public List<Recipe> GetRecipesOnPage(List<Recipe> lstRecipe) {
-		// Get all recipes on the page
-		List<WebElement> recipeCards = driver
-				.findElements(By.xpath("//div[@class='col-md-12']//div[@class='row recipe-list d-flex flex-wrap']"));
-
-		// Get recipes for each recipe card on page
-		for (int i = 1; i <= recipeCards.size(); i++) {
-			// New recipe object
-			Recipe recipe = new Recipe();
-
+		String recipeTab = driver.getWindowHandle();
+		int recipePages = getNumOfPages();
+		for (int j = 1; j <= recipePages; j++) {
 			try {
-				WebElement recipeCard = driver.findElement(
-						By.xpath("//body/main/section[@class='py-4 mt-5']/div[@class='container']/div[@class='row']"
-								+ "/div[@class='col-md-12']/div[@class='row recipe-list d-flex flex-wrap']/div[" + i
-								+ "]"));
 
-				// Get the recipe name element (not just text)
-//	            WebElement recipeNameElement = recipeCard.findElement(By.xpath(".//h2 | .//h3 | .//a[contains(@class,'recipe-name')]"));
-//	            String recipeName = recipeNameElement.getText();
-//	            recipe.recipeName = recipeName;
-//	            LoggerLoad.info(recipe.recipeName);
+				List<WebElement> recipeBlocks = driver
+						.findElements(By.xpath("//main//div[contains(@class,'recipe-block')]"));
 
-				// Click on the recipe name/link element
-				recipeCard.click();
+				for (WebElement recipeCard : recipeBlocks) {
+					// String recipeName = recipeCard.findElement(By.tagName("h5")).getText();
+					WebElement recipeLink = recipeCard.findElement(By.tagName("a")); // recipe link
 
-				// Wait for page to load (add appropriate wait here)
-				Thread.sleep(2000); // Consider using explicit waits instead
-				recipe = RecipeDetails.getCookingTime(recipe);
-				RecipeDetails.getPreparationTime(recipe);
-				RecipeDetails.getNoofserving(recipe);
+					((JavascriptExecutor) driver).executeScript("window.open(arguments[0], '_blank');",
+							recipeLink.getAttribute("href"));
+					String recipeDetailTab = switchToTabByIndex(1);
+					// Need to get data from page (scraping)
 
-				RecipeDetails.GetPreparationMethod(recipe);
-				RecipeDetails.GetNuritientValue(recipe);
-				RecipeDetails.getRecipieIdandUrl(recipe);
-				RecipeDetails.getRecipieName(recipe);
-				RecipeDetails.getRecipieDescription(recipe);
-				// Add recipe to the list
-				lstRecipe.add(recipe);
+					String currentUrl = driver.getCurrentUrl();
+					recipe.recipeId = RecipeDetails.getRecipeID(currentUrl);
+					String recipeName = RecipeDetails.getRecipeName(currentUrl, recipe);
 
-				// Get count of recipes scraped from website without filters
-				LoggerLoad.info("No. of recipes found so far " + lstRecipe.size());
+					// Wait for page to load (add appropriate wait here)
+					Thread.sleep(2000); // Consider using explicit waits instead
+					recipe = RecipeDetails.getCookingTime(recipe);
+					RecipeDetails.getPreparationTime(recipe);
+					RecipeDetails.getNoofserving(recipe);
+					RecipeDetails.getRecipeIngrediants(recipe);
 
-				// Go back to recipe list
-				// driver.navigate().back();
-				Thread.sleep(2000); // Wait for list to reload
+					String recipeTag = RecipeDetails.getTags(recipe);
+					recipe.recipeCategory = RecipeDetails.getRecipeCategory(recipeName, recipeTag);
+					System.out.println("Recipe Category----" + recipe.recipeCategory);
+					recipe.foodCategory = RecipeDetails.getFoodCategory(recipeName, recipeTag);
+					System.out.println("Food Category----" + recipe.foodCategory);
+					recipe.cuisineCategory = RecipeDetails.getCuisineCategory(recipeTag);
+					System.out.println("CuisineCategory---" + recipe.cuisineCategory);
+					RecipeDetails.GetPreparationMethod(recipe);
+					RecipeDetails.GetNuritientValue(recipe);
+					RecipeDetails.getRecipieDescription(recipe);
+					RecipeDetails.getUrl(recipe);
 
-			} catch (Exception ex) {
-				LoggerLoad.info(ex.getMessage());
-				LoggerLoad.info("page " + i + "catch block - " + driver.getTitle());
-			}
-		}
-		return lstRecipe;
-	}
-
-	public void GetAllRecipes(WebDriverWait wait) {
-		List<Recipe> lstRecipe = new ArrayList<>();
-
-		for (int categoryPageCount = 1; categoryPageCount <= 3; categoryPageCount++) {
-			try {
-				if (categoryPageCount != 1) {
-					LoggerLoad.info("Navigating to category page " + categoryPageCount);
-					WebElement pageLink = driver
-							.findElement(By.xpath("//a[@class='page-link' and text()='" + categoryPageCount + "']"));
-					((JavascriptExecutor) driver).executeScript("arguments[0].click();", pageLink);
-					Thread.sleep(2000);
-				}
-
-				// Click on the "View All" button (generic)
-				try {
-					WebElement viewAllButton = wait.until(ExpectedConditions.elementToBeClickable(
-							By.xpath("//a[contains(@href, '/recipes/category/') and contains(text(), 'View All')]")));
-					viewAllButton.click();
-					LoggerLoad.info("Clicked 'View All' button.");
-					Thread.sleep(2000);
-				} catch (Exception ex) {
-					LoggerLoad.warn("View All button not found or not clickable: " + ex.getMessage());
-				}
-
-				// Get actual page numbers (pagination buttons only)
-				List<WebElement> paginationLinks = driver
-						.findElements(By.xpath("//ul[@class='pagination justify-content-center align-items-center']"));
-
-				LoggerLoad.info("Total sub-pages found: " + paginationLinks.size());
-
-				for (int i = 1; i <= paginationLinks.size(); i++) {
-					try {
-						if (i != 1) {
-							LoggerLoad.info("Navigating to sub-page " + i);
-
-							WebElement subPageLink = driver.findElement(By.xpath("//body//main//li[" + i + "]"));
-							((JavascriptExecutor) driver).executeScript("arguments[0].click();", subPageLink);
-							Thread.sleep(2000); // consider replacing with WebDriverWait for stability
-						}
-
-						lstRecipe = GetRecipesOnPage(lstRecipe);
-
-					} catch (Exception e) {
-						LoggerLoad.warn("Error on sub-page " + i + ": " + e.getMessage());
-					}
+					// lstRecipe.add(recipe);
+					closeTab(recipeDetailTab);
+					driver.switchTo().window(recipeTab);
 				}
 
 			} catch (Exception e) {
-				LoggerLoad.warn("Error navigating to category page " + categoryPageCount + ": " + e.getMessage());
+				System.out.println("Error from tab: " + recipeTab);
+			}
+
+			List<WebElement> nextRecipePageButton = driver
+					.findElements(By.xpath("//ul[contains(@class,'pagination')]//a[text()='Next']"));
+			// System.out.println("Next Button: " + nextButton.size());
+
+			if (!nextRecipePageButton.isEmpty()) {
+				((JavascriptExecutor) driver).executeScript("arguments[0].click();", nextRecipePageButton.get(0));
+				// nextButton.get(0).click();
+				Thread.sleep(2000); // Wait for page to load
+			}
+
+		}
+		// return lstRecipe;
+
+	}
+
+	private int getNumOfPages() {
+		// Get the total pages: find all page-number links and pick the highest
+		List<WebElement> pageLinks = driver
+				.findElements(By.xpath("//ul[contains(@class,'pagination')]//a[contains(@href,'?page=')]"));
+		// ul[contains(@class,'pagination')]//a[normalize-space(text()) != 'Next' and
+		// normalize-space(text()) != 'Previous' and normalize-space(text()) != '…']
+
+		int totalPages = 1;
+		for (WebElement link : pageLinks) {
+			String pageText = link.getText().trim();
+			try {
+				int pageNum = Integer.parseInt(pageText);
+				if (pageNum > totalPages) {
+					totalPages = pageNum;
+				}
+			} catch (NumberFormatException e) {
+				// Skip if not a number, e.g. ellipsis (…)
+			}
+		}
+		System.out.println("Total pages: " + totalPages);
+		return totalPages;
+	}
+
+	private String switchToTabByIndex(int index) {
+		Set<String> handles = driver.getWindowHandles();
+		String target = handles.toArray(new String[0])[index];
+		driver.switchTo().window(target);
+		return target;
+	}
+
+	private void closeTab(String handleToClose) {
+		Set<String> allWindows = driver.getWindowHandles();
+		for (String handle : allWindows) {
+			if (handle.equals(handleToClose)) {
+				driver.switchTo().window(handle);
+				driver.close(); // This closes the tab
+				break;
 			}
 		}
 	}
