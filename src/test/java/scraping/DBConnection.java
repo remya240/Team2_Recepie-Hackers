@@ -4,11 +4,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+
+import data.Recipe;
+
 import java.sql.SQLException;
 
 public class DBConnection {
 	private static Connection conn;
-    public static void main(String[] args) {
+	public static void initConnection() {
         String user = "postgres";
         String password = "Hackathon3";
         String dbName = "Recipe";
@@ -122,24 +125,28 @@ public class DBConnection {
     
   
   // Inserting data to database
-    private static void saveRecipeToDatabase(InputVO inputvo) {
-    	String insertSQL = "INSERT INTO lchfadd(recipe_id, recipe_name, recipe_category, food_category, ingredients, preparation_time, cooking_time, tag, no_of_servings, cuisine_category, recipe_description, preparation_method, nutrient_values, recipe_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	public static void saveRecipeToDatabase(Recipe recipe, String tableName) {
+	    String insertSQL = "INSERT INTO " + tableName + 
+	        "(recipe_id, recipe_name, recipe_category, food_category, ingredients, " +
+	        "preparation_time, cooking_time, tag, no_of_servings, cuisine_category, " +
+	        "recipe_description, preparation_method, nutrient_values, recipe_url) " +
+	        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		try (PreparedStatement preparedStatement = conn.prepareStatement(insertSQL)) {
-			preparedStatement.setString(1, inputvo.getRecipeId());
-			System.out.println("recipeId" + inputvo.getRecipeId());
-			preparedStatement.setString(2, inputvo.getRecipeName());
-			preparedStatement.setString(3, inputvo.getRecipeCategory());
-			preparedStatement.setString(4, inputvo.getFoodCategory());
-			preparedStatement.setString(5, inputvo.getNameOfIngredients());
-			preparedStatement.setString(6, inputvo.getPreparationTime());
-			preparedStatement.setString(7, inputvo.getCookTime());
-			preparedStatement.setString(8, inputvo.getTags());
-			preparedStatement.setString(9, inputvo.getNo_of_servings());
-			preparedStatement.setString(10, inputvo.getCuisineCategory());
-			preparedStatement.setString(11, inputvo.getRecipeDescription());
-			preparedStatement.setString(12, inputvo.getPrepMethod());
-			preparedStatement.setString(13, inputvo.getNutrients());
-			preparedStatement.setString(14, inputvo.getRecipeUrl());
+			preparedStatement.setString(1, recipe.getRecipeId());
+			System.out.println("recipeId" + recipe.getRecipeId());
+			preparedStatement.setString(2, recipe.getRecipeName());
+			preparedStatement.setString(3, recipe.getRecipeCategory().name());
+			preparedStatement.setString(4, recipe.getFoodCategory().name());
+			preparedStatement.setString(5, recipe.getIngredients());
+			preparedStatement.setString(6, recipe.getPrepTime());
+			preparedStatement.setString(7, recipe.getCookingTime());
+			preparedStatement.setString(8, recipe.getTag());
+			preparedStatement.setString(9, recipe.getNoOfServings());
+			preparedStatement.setString(10, recipe.getCuisineCategory().name());
+			preparedStatement.setString(11, recipe.getRecipeDescription());
+			preparedStatement.setString(12, recipe.getPreparationMethod());
+			preparedStatement.setString(13, recipe.getNutritionValue());
+			preparedStatement.setString(14, recipe.getRecipeURL());
 			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();

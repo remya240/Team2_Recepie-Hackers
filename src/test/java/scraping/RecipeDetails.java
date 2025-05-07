@@ -29,7 +29,7 @@ public class RecipeDetails extends BaseClass {
 		return recipe;
 	}
 
-	public static Recipe getCookingTime(Recipe recipe) {
+	public static void getCookingTime(Recipe recipe) {
 
 		try {
 			WebElement cookTime = driver.findElement(By.xpath(
@@ -42,11 +42,9 @@ public class RecipeDetails extends BaseClass {
 
 		// Print cooking time
 		System.out.println("Cooking Time: " + recipe.cookingTime);
-
-		return recipe;
 	}
 
-	public static Recipe getPreparationTime(Recipe recipe) {
+	public static void getPreparationTime(Recipe recipe) {
 
 		try {
 			WebElement prepTime = driver.findElement(By.xpath("//div[@class='box-time']//div[3]//p[1]"));
@@ -58,11 +56,9 @@ public class RecipeDetails extends BaseClass {
 
 // Print cooking time
 		System.out.println("Preparation Time: " + recipe.prepTime);
-
-		return recipe;
 	}
 
-	public static Recipe GetPreparationMethod(Recipe recipe) {
+	public static void GetPreparationMethod(Recipe recipe) {
 		try {
 			WebElement preparationMethod = driver.findElement(By.xpath("//div[@class='rsepc']//ol"));
 			recipe.preparationMethod = preparationMethod.getText().trim();
@@ -72,11 +68,9 @@ public class RecipeDetails extends BaseClass {
 		}
 
 		System.out.println("preparationMethod : " + recipe.preparationMethod);
-
-		return recipe;
 	}
 
-	public static Recipe GetNuritientValue(Recipe recipe) {
+	public static void GetNuritientValue(Recipe recipe) {
 		try {
 			WebElement nutrValue = driver.findElement(By.xpath("//figure[@class='table']"));
 			recipe.nutritionValue = nutrValue.getText().trim();
@@ -86,8 +80,6 @@ public class RecipeDetails extends BaseClass {
 		}
 
 		System.out.println("NutritionValue : " + recipe.nutritionValue);
-
-		return recipe;
 	}
 
 	public static String getRecipeID(String url) {
@@ -100,7 +92,7 @@ public class RecipeDetails extends BaseClass {
 
 	}
 
-	public static String getRecipeName(String url, Recipe recipe) {
+	public static void getRecipeName(String url, Recipe recipe) {
 
 		String baseName = url.substring(url.lastIndexOf('/') + 1); // "paneer-masala-2404r"
 		String namePart = baseName.substring(0, baseName.lastIndexOf('-')); // "paneer-masala"
@@ -108,10 +100,9 @@ public class RecipeDetails extends BaseClass {
 		// Replace hyphens with spaces
 		recipe.recipeName = namePart.replace("-", " ");
 		System.out.println("Recipe Name+++ " + recipe.recipeName);
-		return recipe.recipeName;
 	}
 
-	public static Recipe getNoofserving(Recipe recipe) {
+	public static void getNoofserving(Recipe recipe) {
 
 		try {
 			WebElement noOfServings = driver.findElement(By.xpath("//p[@class='mb-0 font-size-13 font-size-13']"));
@@ -122,11 +113,9 @@ public class RecipeDetails extends BaseClass {
 		}
 
 		System.out.println("No of servings : " + recipe.noOfServings);
-
-		return recipe;
 	}
 
-	public static Recipe getRecipieDescription(Recipe recipe) {
+	public static void getRecipieDescription(Recipe recipe) {
 
 		try {
 			WebElement recipeDescription = driver.findElement(By.xpath("//p[contains(text(),'|')]"));
@@ -137,11 +126,9 @@ public class RecipeDetails extends BaseClass {
 		}
 
 		System.out.println("Description : " + recipe.recipeDescription);
-
-		return recipe;
 	}
 
-	public static String getTags(Recipe recipe) {
+	public static void getTags(Recipe recipe) {
 		try {
 			WebElement tagElements = driver.findElement(By.className("tags-list"));
 			recipe.tag = tagElements.getText();
@@ -149,10 +136,9 @@ public class RecipeDetails extends BaseClass {
 		} catch (Exception e) {
 			LoggerLoad.error("Tags element not found: " + e.getMessage());
 		}
-		return recipe.tag;
 	}
 
-	public static FoodCategory  getFoodCategory (String recipeName, String recipeTag) {
+	public static FoodCategory getFoodCategory(String recipeName, String recipeTag) {
 		{
 			if (recipeName.contains("Vegan") || recipeTag.contains("Vegan"))
 				return FoodCategory.VEGAN;
@@ -167,7 +153,7 @@ public class RecipeDetails extends BaseClass {
 		}
 
 	}
-	
+
 	public static RecipeCategory getRecipeCategory(String recipeName, String recipeTags) {
 		if (recipeName.contains("Breakfast") || recipeTags.contains("Breakfast"))
 			return RecipeCategory.BREAKFAST;
@@ -190,7 +176,7 @@ public class RecipeDetails extends BaseClass {
 
 	}
 
-	public static Recipe getRecipeIngrediants(Recipe recipe) {
+	public static void getRecipeIngrediants(Recipe recipe) {
 		try {
 			WebElement ingredientSection = driver.findElement(By.id("ingredients"));
 			recipe.ingredients = ingredientSection.getText().trim();
@@ -198,7 +184,8 @@ public class RecipeDetails extends BaseClass {
 		} catch (Exception e) {
 			LoggerLoad.error("ingredients element not found: " + e.getMessage());
 		}
-		return recipe;
 	}
+
+
 
 }

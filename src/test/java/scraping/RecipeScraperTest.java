@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -15,27 +16,29 @@ import org.testng.annotations.Test;
 import data.Recipe;
 import driverManager.DriverFactory;
 import testBase.BaseClass;
+import utilities.ExcelData;
 import utilities.LoggerLoad;
 
 public class RecipeScraperTest extends BaseClass {
 
 	@Test
 	public void GetRecipesOnPage() throws InterruptedException {
-		List<Recipe> lstRecipe = new ArrayList<>();
-		
+		List<Recipe> recipeList = new ArrayList<>();
+
 		System.out.println("Current URL: " + driver.getCurrentUrl());
 		Thread.sleep(3000);
-		Recipe recipe = new Recipe();
 
 		String recipeTab = driver.getWindowHandle();
 		int recipePages = getNumOfPages();
-		for (int j = 1; j <= recipePages; j++) {
+		for (int j = 1; j <= 20; j++) {
 			try {
 
 				List<WebElement> recipeBlocks = driver
 						.findElements(By.xpath("//main//div[contains(@class,'recipe-block')]"));
 
 				for (WebElement recipeCard : recipeBlocks) {
+					Recipe recipe = new Recipe();
+
 					// String recipeName = recipeCard.findElement(By.tagName("h5")).getText();
 					WebElement recipeLink = recipeCard.findElement(By.tagName("a")); // recipe link
 
@@ -46,27 +49,26 @@ public class RecipeScraperTest extends BaseClass {
 
 					String currentUrl = driver.getCurrentUrl();
 					recipe.recipeId = RecipeDetails.getRecipeID(currentUrl);
-					String recipeName = RecipeDetails.getRecipeName(currentUrl, recipe);
+					RecipeDetails.getRecipeName(currentUrl, recipe);
 
 					// Wait for page to load (add appropriate wait here)
 					Thread.sleep(2000); // Consider using explicit waits instead
-					recipe = RecipeDetails.getCookingTime(recipe);
+					RecipeDetails.getCookingTime(recipe);
 					RecipeDetails.getPreparationTime(recipe);
 					RecipeDetails.getNoofserving(recipe);
 					RecipeDetails.getRecipeIngrediants(recipe);
-
-					String recipeTag = RecipeDetails.getTags(recipe);
-					recipe.recipeCategory = RecipeDetails.getRecipeCategory(recipeName, recipeTag);
+					RecipeDetails.getTags(recipe);
+					recipe.recipeCategory = RecipeDetails.getRecipeCategory(recipe.recipeName, recipe.tag);
 					System.out.println("Recipe Category----" + recipe.recipeCategory);
-					recipe.foodCategory = RecipeDetails.getFoodCategory(recipeName, recipeTag);
+					recipe.foodCategory = RecipeDetails.getFoodCategory(recipe.recipeName, recipe.tag);
 					System.out.println("Food Category----" + recipe.foodCategory);
-					recipe.cuisineCategory = RecipeDetails.getCuisineCategory(recipeTag);
+					recipe.cuisineCategory = RecipeDetails.getCuisineCategory(recipe.tag);
 					System.out.println("CuisineCategory---" + recipe.cuisineCategory);
 					RecipeDetails.GetPreparationMethod(recipe);
 					RecipeDetails.GetNuritientValue(recipe);
 					RecipeDetails.getRecipieDescription(recipe);
 					RecipeDetails.getUrl(recipe);
-					lstRecipe.add(recipe);
+					recipeList.add(recipe);
 					// lstRecipe.add(recipe);
 					closeTab(recipeDetailTab);
 					driver.switchTo().window(recipeTab);
@@ -86,6 +88,9 @@ public class RecipeScraperTest extends BaseClass {
 				Thread.sleep(2000); // Wait for page to load
 			}
 		}
+		filterEliminateRecipes(recipeList);
+		filterAddRecipes(recipeList);
+
 	}
 
 	private int getNumOfPages() {
@@ -127,6 +132,55 @@ public class RecipeScraperTest extends BaseClass {
 				break;
 			}
 		}
+	}
+
+	public void filterEliminateRecipes(List<Recipe> recipeList) {
+		// Load Excel data
+		ExcelData.LoadLFVData();
+		DBConnection.initConnection();
+
+		Set<Recipe> eliminateList = recipeList.stream().filter(recipe -> {
+			boolean containsEliminate = ExcelData.LFVEliminate.stream()
+					.anyMatch(value -> recipe.ingredients.contains(value));
+
+			if (containsEliminate)
+				return false;
+
+			boolean containsAdd = ExcelData.LFVAdd.stream().anyMatch(value -> recipe.ingredients.contains(value));
+
+			return !containsAdd;
+		}).collect(Collectors.toSet());
+
+		System.out.println("Number of recipes for Eliminate table: " + eliminateList.size());
+
+		for (Recipe recipe : eliminateList) {
+			DBConnection.saveRecipeToDatabase(recipe, "LFV_elemination");
+		}
+	}
+
+	public void filterAddRecipes(List<Recipe> recipeList) {
+		// Load Excel data
+		ExcelData.LoadLFVData();
+		DBConnection.initConnection();
+
+		Set<Recipe> addList = recipeList.stream().filter(recipe -> {
+			boolean containsEliminate = ExcelData.LFVEliminate.stream()
+					.anyMatch(value -> recipe.ingredients.contains(value));
+
+			if (containsEliminate)
+				return false;
+
+			boolean containsAdd = ExcelData.LFVAdd.stream().anyMatch(value -> recipe.ingredients.contains(value));
+
+			return containsAdd; // Only difference is this return value
+		}).collect(Collectors.toSet());
+
+		System.out.println("Number of recipes for Add table: " + addList.size());
+
+		for (Recipe recipe : addList) {
+			DBConnection.saveRecipeToDatabase(recipe, "LFV_to_add");
+		}
+
 	}
 
 }
