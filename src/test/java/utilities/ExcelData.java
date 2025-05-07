@@ -18,6 +18,8 @@ public class ExcelData {
 	public static List<String> LFVOptinalRecipe = new ArrayList<String>();
 	
 	public static List<String> AllergiesToFilter = new ArrayList<String>();
+	public static List<String> MilkAllergy = new ArrayList<String>();
+	public static List<String> NutAllergy = new ArrayList<String>();
 	
 	//static ExcelReader excelReader;
 	static String filePath=".\\src\\test\\resources\\Data.xlsx";
@@ -41,5 +43,10 @@ public class ExcelData {
 		LFVOptinalRecipe = readexcel.readColumnFromExcel(4,1);
 	}
 	
-    			
+    public static void LoadAllergyData() {
+    	MilkAllergy = readexcel.readColumnFromExcel(0,2);
+		NutAllergy = readexcel.readColumnFromExcel(0,3);
+    	
+    }
+    
 }
