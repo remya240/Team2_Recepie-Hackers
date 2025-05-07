@@ -17,7 +17,7 @@ package scraping;
 	private String Nutrient_values;
 	private String Recipe_URL;
 	
-	
+	//Getter and Setter
 	public String getRecipeId() {
 		return Recipe_ID;
 	}
@@ -111,4 +111,4 @@ package scraping;
 				+ Preparation_method + ", nutrients=" + Nutrient_values + ", recipeUrl=" + Recipe_URL + "]";
 	}
 
-}
+	}

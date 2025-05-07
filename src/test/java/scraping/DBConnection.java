@@ -121,7 +121,7 @@ public class DBConnection {
     } 
     
   
-  
+  // Inserting data to database
     private static void saveRecipeToDatabase(InputVO inputvo) {
     	String insertSQL = "INSERT INTO lchfadd(recipe_id, recipe_name, recipe_category, food_category, ingredients, preparation_time, cooking_time, tag, no_of_servings, cuisine_category, recipe_description, preparation_method, nutrient_values, recipe_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		try (PreparedStatement preparedStatement = conn.prepareStatement(insertSQL)) {
@@ -146,5 +146,5 @@ public class DBConnection {
 		}
 	
 	}
-    }
+}
             
