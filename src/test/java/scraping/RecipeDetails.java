@@ -1,6 +1,10 @@
 package scraping;
 
 import enums.CuisineCategory;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -12,22 +16,35 @@ import utilities.LoggerLoad;
 
 public class RecipeDetails extends BaseClass{
 	
+	public static Recipe getUrl(Recipe recipe) {
+
+		try {
+			recipe.recipeURL = driver.getCurrentUrl();
+
+		} catch (Exception ex) {
+			LoggerLoad.error("recipeURL element not found: " + ex.getMessage());
+		}
+
+		System.out.println("Recipe URL: " + recipe.recipeURL);
+
+		return recipe;
+	}
+	
 	public static String getRecipeID(String url) {
 	
 		String[] parts = url.split("-");
 		String lastPart = parts[parts.length - 1];
 		String number = lastPart.substring(0, lastPart.length() - 1);
-		System.out.println("RECIPE ID" + number); // Output:
+		System.out.println("RECIPE ID" + number); 
 		return number;
 
 	}
 	
 	public static String getRecipeName(String url,Recipe recipe) {
 
-		String baseName = url.substring(url.lastIndexOf('/') + 1); // "paneer-masala-2404r"
-		String namePart = baseName.substring(0, baseName.lastIndexOf('-')); // "paneer-masala"
+		String baseName = url.substring(url.lastIndexOf('/') + 1); 
+		String namePart = baseName.substring(0, baseName.lastIndexOf('-')); 
 
-		// Replace hyphens with spaces
 		recipe.recipeName = namePart.replace("-", " ");
 		System.out.println("Recipe Name+++ " + recipe.recipeName);
 		return recipe.recipeName;
@@ -44,7 +61,6 @@ public class RecipeDetails extends BaseClass{
 			recipe.cookingTime = "N/A";
 		}
 
-		// Print cooking time
 		System.out.println("Cooking Time: " + recipe.cookingTime);
 
 		return recipe;
@@ -60,8 +76,7 @@ public class RecipeDetails extends BaseClass{
 			recipe.prepTime = "N/A";
 		}
 
-// Print cooking time
-		System.out.println("Cooking Time: " + recipe.prepTime);
+		System.out.println("Preparation Time: " + recipe.prepTime);
 
 		return recipe;
 	}
@@ -70,6 +85,8 @@ public class RecipeDetails extends BaseClass{
 		try {
 		  WebElement ingredientSection = driver.findElement(By.id("ingredients"));
 		  recipe.ingredients = ingredientSection.getText().trim();
+	//	  List<String> ingredientList = Arrays.asList(recipe.ingredients.split("\\n"));
+	//	  System.out.println("converted list---------"+ingredientList);
 		  System.out.println("Ingrediants List---"+recipe.ingredients);
 		}catch(Exception e) {
 			LoggerLoad.error("ingredients element not found: " + e.getMessage());   
@@ -132,7 +149,7 @@ public class RecipeDetails extends BaseClass{
 
 	public static Recipe GetNuritientValue(Recipe recipe) {
 		try {
-			WebElement nutrValue = driver.findElement(By.xpath("//table[@id='rcpnutrients']"));
+			WebElement nutrValue = driver.findElement(By.xpath("//figure[@class='table']"));
 			recipe.nutritionValue = nutrValue.getText().trim();
 		} catch (Exception Ex) {
 			LoggerLoad.error("NutritionValue element not found: " + Ex.getMessage());
@@ -152,7 +169,35 @@ public class RecipeDetails extends BaseClass{
 			}
 		}
 		return CuisineCategory.INDIAN;
+	}
+	
+	public static Recipe getNoofserving(Recipe recipe) {
 
+		try {
+			WebElement noOfServings = driver.findElement(By.xpath("//p[@class='mb-0 font-size-13 font-size-13']"));
+			recipe.noOfServings = noOfServings.getText().trim();
+		} catch (Exception Ex) {
+			LoggerLoad.error("No of servings element not found: " + Ex.getMessage());
+			recipe.noOfServings = "N/A";
+		}
+
+		System.out.println("No of servings : " + recipe.noOfServings);
+
+		return recipe;
+	}
+	public static Recipe getRecipieDescription(Recipe recipe) {
+
+		try {
+			WebElement recipeDescription = driver.findElement(By.xpath("//p[contains(text(),'|')]"));
+			recipe.recipeDescription = recipeDescription.getText().trim();
+		} catch (Exception Ex) {
+			LoggerLoad.error("Description element not found: " + Ex.getMessage());
+			recipe.recipeDescription = "N/A";
+		}
+
+		System.out.println("Description : " + recipe.recipeDescription);
+
+		return recipe;
 	}
 
 }
