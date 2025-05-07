@@ -10,14 +10,14 @@ import data.Recipe;
 import java.sql.SQLException;
 
 public class DBConnection {
-	private static Connection conn;
+	private	 static String user = "postgres";
+	private static  String password = "Devi@12345";
+	private static String dbName = "Recipe";
+	private static String serverUrl = "jdbc:postgresql://localhost:5432/";
+	private static String dbUrl = serverUrl + dbName;
+	
 	public static void initConnection() {
-        String user = "postgres";
-        String password = "Hackathon3";
-        String dbName = "Recipe";
-        String serverUrl = "jdbc:postgresql://localhost:5432/";
-        String dbUrl = serverUrl + dbName;
-        
+           
         	try (Connection testConn = DriverManager.getConnection(dbUrl, user, password)) {
                     System.out.println("Connected to existing database '" + dbUrl + "'");
                 } catch (SQLException e) {
@@ -39,16 +39,16 @@ public class DBConnection {
 
                     // Create LFV_elemination
                     String table1 = "CREATE TABLE IF NOT EXISTS LFV_elemination (" +
-                            "Recipe_ID SERIAL PRIMARY KEY, " +
+                            "Recipe_ID VARCHAR(50) PRIMARY KEY, " +
                             "Recipe_Name VARCHAR(255) NOT NULL, " +
-                            "Recipe_Category VARCHAR(100), " +
-                            "Food_Category VARCHAR(100), " +
+                            "Recipe_Category VARCHAR(300), " +
+                            "Food_Category VARCHAR(300), " +
                             "Ingredients TEXT, " +
-                            "Preparation_Time INTEGER, " +
-                            "Cooking_Time INTEGER, " +
-                            "Tag VARCHAR(100), " +
-                            "No_of_servings INTEGER, " +
-                            "Cuisine_category VARCHAR(100), " +
+                            "Preparation_Time VARCHAR(50), " +
+                            "Cooking_Time VARCHAR(50), " +
+                            "Tag VARCHAR(300), " +
+                            "No_of_servings VARCHAR(50), " +
+                            "Cuisine_category VARCHAR(300), " +
                             "Recipe_Description TEXT, " +
                             "Preparation_method TEXT, " +
                             "Nutrient_values TEXT, " +
@@ -59,16 +59,16 @@ public class DBConnection {
 
                     // Create LFV_to_add
                     String table2 = "CREATE TABLE IF NOT EXISTS LFV_to_add (" +
-                            "Recipe_ID SERIAL PRIMARY KEY, " +
+                            "Recipe_ID VARCHAR(50) PRIMARY KEY, " +
                             "Recipe_Name VARCHAR(255) NOT NULL, " +
-                            "Recipe_Category VARCHAR(100), " +
-                            "Food_Category VARCHAR(100), " +
+                            "Recipe_Category VARCHAR(300), " +
+                            "Food_Category VARCHAR(300), " +
                             "Ingredients TEXT, " +
-                            "Preparation_Time INTEGER, " +
-                            "Cooking_Time INTEGER, " +
-                            "Tag VARCHAR(100), " +
-                            "No_of_servings INTEGER, " +
-                            "Cuisine_category VARCHAR(100), " +
+                            "Preparation_Time VARCHAR(50), " +
+                            "Cooking_Time VARCHAR(50), " +
+                            "Tag VARCHAR(300), " +
+                            "No_of_servings VARCHAR(50), " +
+                            "Cuisine_category VARCHAR(300), " +
                             "Recipe_Description TEXT, " +
                             "Preparation_method TEXT, " +
                             "Nutrient_values TEXT, " +
@@ -79,15 +79,15 @@ public class DBConnection {
 
                     // Create LFV_Allergy_Milk
                     String table3 = "CREATE TABLE IF NOT EXISTS LFV_Allergy_Milk (" +
-                            "Recipe_ID SERIAL PRIMARY KEY, " +
+                            "Recipe_ID VARCHAR(50) PRIMARY KEY, " +
                             "Recipe_Name VARCHAR(255) NOT NULL, " +
-                            "Recipe_Category VARCHAR(100), " +
-                            "Food_Category VARCHAR(100), " +
+                            "Recipe_Category VARCHAR(300), " +
+                            "Food_Category VARCHAR(300), " +
                             "Ingredients TEXT, " +
-                            "Preparation_Time INTEGER, " +
-                            "Cooking_Time INTEGER, " +
-                            "Tag VARCHAR(100), " +
-                            "No_of_servings INTEGER, " +
+                            "Preparation_Time VARCHAR(50), " +
+                            "Cooking_Time VARCHAR(50), " +
+                            "Tag VARCHAR(300), " +
+                            "No_of_servings VARCHAR(50), " +
                             "Cuisine_category VARCHAR(100), " +
                             "Recipe_Description TEXT, " +
                             "Preparation_method TEXT, " +
@@ -99,16 +99,16 @@ public class DBConnection {
 
                     // Create LFV_Allergy_Nut
                     String table4 = "CREATE TABLE IF NOT EXISTS LFV_Allergy_Nut (" +
-                            "Recipe_ID SERIAL PRIMARY KEY, " +
+                            "Recipe_ID VARCHAR(50) PRIMARY KEY, " +
                             "Recipe_Name VARCHAR(255) NOT NULL, " +
-                            "Recipe_Category VARCHAR(100), " +
-                            "Food_Category VARCHAR(100), " +
+                            "Recipe_Category VARCHAR(300), " +
+                            "Food_Category VARCHAR(300), " +
                             "Ingredients TEXT, " +
-                            "Preparation_Time INTEGER, " +
-                            "Cooking_Time INTEGER, " +
+                            "Preparation_Time VARCHAR(50), " +
+                            "Cooking_Time VARCHAR(50), " +
                             "Tag VARCHAR(100), " +
                             "No_of_servings INTEGER, " +
-                            "Cuisine_category VARCHAR(100), " +
+                            "Cuisine_category VARCHAR(300), " +
                             "Recipe_Description TEXT, " +
                             "Preparation_method TEXT, " +
                             "Nutrient_values TEXT, " +
@@ -126,12 +126,13 @@ public class DBConnection {
   
   // Inserting data to database
 	public static void saveRecipeToDatabase(Recipe recipe, String tableName) {
-	    String insertSQL = "INSERT INTO " + tableName + 
-	        "(recipe_id, recipe_name, recipe_category, food_category, ingredients, " +
-	        "preparation_time, cooking_time, tag, no_of_servings, cuisine_category, " +
-	        "recipe_description, preparation_method, nutrient_values, recipe_url) " +
-	        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-		try (PreparedStatement preparedStatement = conn.prepareStatement(insertSQL)) {
+			String insertSQL = "INSERT INTO " + tableName + " (" +
+		        "Recipe_ID, Recipe_Name, Recipe_Category, Food_Category, Ingredients, " +
+		        "Preparation_Time, Cooking_Time, Tag, No_of_servings, Cuisine_category, " +
+		        "Recipe_Description, Preparation_method, Nutrient_values, Recipe_URL) " +
+		        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		 try (Connection conn = DriverManager.getConnection(dbUrl, user, password);
+	             PreparedStatement preparedStatement = conn.prepareStatement(insertSQL)) {
 			preparedStatement.setString(1, recipe.getRecipeId());
 			System.out.println("recipeId" + recipe.getRecipeId());
 			preparedStatement.setString(2, recipe.getRecipeName());
