@@ -1,10 +1,10 @@
 package enums;
 
 public enum  RecipeCategory {
-	 BREAKFAST,
-	    LUNCH,
-	    DINNER,
-	    SNACK,
-	    DESSERT
+	
+	BREAKFAST,
+	LUNCH,
+	DINNER,
+	SNACKS
 
 }

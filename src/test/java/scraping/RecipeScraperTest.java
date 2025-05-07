@@ -17,14 +17,12 @@ import driverManager.DriverFactory;
 import testBase.BaseClass;
 import utilities.LoggerLoad;
 
-public class Pagination extends BaseClass {
+public class RecipeScraperTest extends BaseClass {
 
 	@Test
 	public void GetRecipesOnPage() throws InterruptedException {
-		System.out.println("$$$$$$");
-		WebDriver driver = DriverFactory.getDriverInstance();
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-
+		List<Recipe> lstRecipe = new ArrayList<>();
+		
 		System.out.println("Current URL: " + driver.getCurrentUrl());
 		Thread.sleep(3000);
 		Recipe recipe = new Recipe();
@@ -68,7 +66,7 @@ public class Pagination extends BaseClass {
 					RecipeDetails.GetNuritientValue(recipe);
 					RecipeDetails.getRecipieDescription(recipe);
 					RecipeDetails.getUrl(recipe);
-
+					lstRecipe.add(recipe);
 					// lstRecipe.add(recipe);
 					closeTab(recipeDetailTab);
 					driver.switchTo().window(recipeTab);
@@ -87,10 +85,7 @@ public class Pagination extends BaseClass {
 				// nextButton.get(0).click();
 				Thread.sleep(2000); // Wait for page to load
 			}
-
 		}
-		// return lstRecipe;
-
 	}
 
 	private int getNumOfPages() {

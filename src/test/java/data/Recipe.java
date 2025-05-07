@@ -1,22 +1,25 @@
 package data;
 
+import enums.CuisineCategory;
 import enums.FoodCategory;
 import enums.RecipeCategory;
 
 public class Recipe {
 
-    public String recipeId;
-    public String recipeName;
-    public RecipeCategory recipeCategory;
-    public FoodCategory foodCategory;
-    public String ingredients;
-    public String prepTime;
-    public String cookingTime;
-    public String preparationMethod;
-    public String nutritionValue;
-    public String recipeURL;
-    public String noOfServing;
-    public String recipedescription;
+	public String recipeId;
+	public String recipeName;
+	public RecipeCategory recipeCategory;
+	public FoodCategory foodCategory;
+	public CuisineCategory cuisineCategory;
+	public String ingredients;
+	public String prepTime;
+	public String cookingTime;
+	public String tag;
+	public String noOfServings;
+	public String recipeDescription;
+	public String preparationMethod;
+	public String nutritionValue;
+	public String recipeURL;
 
-    // Optionally, include constructors, getters, setters
+	// Optionally, include constructors, getters, setters
 }

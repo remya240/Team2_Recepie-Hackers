@@ -1,5 +1,9 @@
 package scraping;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import data.Recipe;
@@ -148,31 +152,31 @@ public class RecipeDetails extends BaseClass {
 		return recipe.tag;
 	}
 
-	public static RecipeCategory getRecipeCategory(String recipeName, String recipeTag) {
+	public static FoodCategory  getFoodCategory (String recipeName, String recipeTag) {
 		{
 			if (recipeName.contains("Vegan") || recipeTag.contains("Vegan"))
-				return RecipeCategory.VEGAN;
+				return FoodCategory.VEGAN;
 			else if (recipeName.contains("Jain") || recipeTag.contains("Jain"))
-				return RecipeCategory.JAIN;
+				return FoodCategory.JAIN;
 			else if (recipeName.contains("Egg ") || recipeTag.contains("Egg "))
-				return RecipeCategory.EGGITARIAN;
+				return FoodCategory.EGGITARIAN;
 			else if (recipeName.contains("NonVeg") || recipeTag.contains("NonVeg"))
-				return RecipeCategory.NONVEGETARIAN;
+				return FoodCategory.NONVEGETARIAN;
 			else
-				return RecipeCategory.VEGETARIAN;
+				return FoodCategory.VEGETARIAN;
 		}
 
 	}
-
-	public static FoodCategory getFoodCategory(String recipeName, String recipeTags) {
+	
+	public static RecipeCategory getRecipeCategory(String recipeName, String recipeTags) {
 		if (recipeName.contains("Breakfast") || recipeTags.contains("Breakfast"))
-			return FoodCategory.BREAKFAST;
+			return RecipeCategory.BREAKFAST;
 		else if (recipeName.contains("Lunch") || recipeTags.contains("Lunch"))
-			return FoodCategory.LUNCH;
+			return RecipeCategory.LUNCH;
 		else if (recipeName.contains("Dinner") || recipeTags.contains("Dinner"))
-			return FoodCategory.DINNER;
+			return RecipeCategory.DINNER;
 		else
-			return FoodCategory.SNACKS;
+			return RecipeCategory.SNACKS;
 	}
 
 	public static CuisineCategory getCuisineCategory(String tag) {
