@@ -1,9 +1,11 @@
 package enums;
 
 public enum FoodCategory {
-	BREAKFAST,
-	LUNCH,
-	DINNER,
-	SNACKS
+
+	VEGAN,
+	JAIN,
+	EGGITARIAN,
+	NONVEGETARIAN,
+	VEGETARIAN	
 
 }

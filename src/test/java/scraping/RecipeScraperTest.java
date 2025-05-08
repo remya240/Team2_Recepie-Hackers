@@ -25,7 +25,8 @@ public class RecipeScraperTest extends BaseClass {
 
 		String recipeTab = driver.getWindowHandle();
 		int recipePages = getNumOfPages();
-		for (int j = 1; j <= recipePages ; j++) {
+
+		for (int j = 1; j <=recipePages ; j++) {
 			try {
 
 				List<WebElement> recipeBlocks = driver
@@ -34,7 +35,6 @@ public class RecipeScraperTest extends BaseClass {
 				for (WebElement recipeCard : recipeBlocks) {
 					Recipe recipe = new Recipe();
 
-					// String recipeName = recipeCard.findElement(By.tagName("h5")).getText();
 					WebElement recipeLink = recipeCard.findElement(By.tagName("a")); // recipe link
 
 					((JavascriptExecutor) driver).executeScript("window.open(arguments[0], '_blank');",
@@ -64,8 +64,7 @@ public class RecipeScraperTest extends BaseClass {
 					RecipeDetails.getRecipieDescription(recipe);
 					RecipeDetails.getUrl(recipe);
 					recipeList.add(recipe);
-					// lstRecipe.add(recipe);
-					System.out.println("Added recipe: " + recipe.recipeName + " | Total recipes: " + recipeList.size());
+
 					closeTab(recipeDetailTab);
 					driver.switchTo().window(recipeTab);
 				}
@@ -76,28 +75,27 @@ public class RecipeScraperTest extends BaseClass {
 
 			List<WebElement> nextRecipePageButton = driver
 					.findElements(By.xpath("//ul[contains(@class,'pagination')]//a[text()='Next']"));
-			// System.out.println("Next Button: " + nextButton.size());
 
 			if (!nextRecipePageButton.isEmpty()) {
 				((JavascriptExecutor) driver).executeScript("arguments[0].click();", nextRecipePageButton.get(0));
-				// nextButton.get(0).click();
 				Thread.sleep(2000); // Wait for page to load
 			}
 		}
 		filterLFVElimination(recipeList);
 		filterAddRecipes(recipeList);
-		filterLFVAllergyMilk(recipeList);
+		filterLFVAllergyNut(recipeList);
+    filterLFVAllergyMilk(recipeList);
 		filterAddRecipesLCHF(recipeList);
 		filterEliminateRecipesLCHF(recipeList);
 		filterLCHFAllergyMilk(recipeList);
+		filterLCHFAllergyNut(recipeList);
+
 	}
 
 	private int getNumOfPages() {
 		// Get the total pages: find all page-number links and pick the highest
 		List<WebElement> pageLinks = driver
 				.findElements(By.xpath("//ul[contains(@class,'pagination')]//a[contains(@href,'?page=')]"));
-		// ul[contains(@class,'pagination')]//a[normalize-space(text()) != 'Next' and
-		// normalize-space(text()) != 'Previous' and normalize-space(text()) != '…']
 
 		int totalPages = 1;
 		for (WebElement link : pageLinks) {
@@ -133,7 +131,9 @@ public class RecipeScraperTest extends BaseClass {
 		}
 	}
 
+
 	public void filterLFVElimination(List<Recipe> recipeList) {
+
 		// Load Excel data
 		ExcelData.LoadLFVData();
 		DBConnection.initConnection();
@@ -176,14 +176,55 @@ public class RecipeScraperTest extends BaseClass {
 
 		System.out.println("Number of recipes for Add table: " + addList.size());
 
-	    System.out.println("\nTotal " + addList.size() + " recipes saved to database.");
 		for (Recipe recipe : addList) {
 			DBConnection.saveRecipeToDatabase(recipe, "LFV_to_add");
 		}
 
+		System.out.println("\nTotal " + addList.size() + " recipes saved to database.");
 	}
-	
-	public void filterLFVAllergyMilk(List<Recipe> recipeList) {
+
+	public void filterLFVAllergyNut(List<Recipe> recipeList) {
+
+		// Load Excel data
+		ExcelData.LoadLFVData();
+		DBConnection.initConnection();
+
+		Set<Recipe> nutAllergyRecipes = recipeList.stream().filter(recipe -> {
+			boolean containsNut = ExcelData.LFVAllergyNut.stream()
+					.anyMatch(nut -> recipe.ingredients.toLowerCase().contains(nut));
+			return containsNut;
+		}).collect(Collectors.toSet());
+
+		System.out.println("Number of recipes with nut allergens: " + nutAllergyRecipes.size());
+
+		for (Recipe recipe : nutAllergyRecipes) {
+			DBConnection.saveRecipeToDatabase(recipe, "LFV_Allergy_Nut");
+		}
+
+		System.out.println("\nTotal " + nutAllergyRecipes.size() + " recipes saved to database.");
+	}
+
+	public void filterLCHFAllergyNut(List<Recipe> recipeList) {
+
+		// Load Excel data
+		ExcelData.LoadLCHFData();
+		DBConnection.initConnection();
+
+		Set<Recipe> nutAllergyRecipes = recipeList.stream().filter(recipe -> {
+			boolean containsNut = ExcelData.LCHFAllergyNut.stream()
+					.anyMatch(nut -> recipe.ingredients.toLowerCase().contains(nut));
+			return containsNut;
+		}).collect(Collectors.toSet());
+
+		System.out.println("Number of nut allergy recipes found: " + nutAllergyRecipes.size());
+
+		for (Recipe recipe : nutAllergyRecipes) {
+			DBConnection.saveRecipeToDatabase(recipe, "LCHF_Allergy_Nut");
+		}
+
+		System.out.println("\nTotal " + nutAllergyRecipes.size() + " recipes saved to database.");
+	}
+  public void filterLFVAllergyMilk(List<Recipe> recipeList) {
 		// Load Excel data
 		ExcelData.LoadLFVData();
 		DBConnection.initConnection();
@@ -268,6 +309,7 @@ public class RecipeScraperTest extends BaseClass {
 		}
 		System.out.println("\nTotal " + addList.size() + " recipes saved to database.");
 	}
+
 
 }
 

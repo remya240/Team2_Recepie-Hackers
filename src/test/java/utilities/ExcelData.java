@@ -9,20 +9,25 @@ public class ExcelData {
 
 	public static List<String> LCHFEliminate= new ArrayList<String>();
 	public static List<String> LCHFAdd = new ArrayList<String>();
-	public static List<String> LCHFAvoid = new ArrayList<String>();
-	public static List<String> LCHFFoodProcessing = new ArrayList<String>();
+
+	public static List<String> LCHFAllergyMilk= new ArrayList<String>();
+	public static List<String> LCHFAllergyNut = new ArrayList<String>();
+	
+	
+	//public static List<String> LCHAvoid = new ArrayList<String>();
+	//public static List<String> LCHFoodProcessing = new ArrayList<String>();
 	
 	public static List<String> LFVEliminate = new ArrayList<String>();
 	public static List<String> LFVAdd = new ArrayList<String>();
-	public static List<String> LFVAddnotfullyvegan = new ArrayList<String>();
-	public static List<String> LFVAvoid = new ArrayList<String>();
-	public static List<String> LFVOptinalRecipe = new ArrayList<String>();
-	
-	public static List<String> AllergiesToFilter = new ArrayList<String>();
-	public static List<String> LCHFAllergyMilk = new ArrayList<String>();
-	public static List<String> LCHFAllergyNut = new ArrayList<String>();
 	public static List<String> LFVAllergyMilk = new ArrayList<String>();
 	public static List<String> LFVAllergyNut = new ArrayList<String>();
+	
+	
+	//public static List<String> LFVAddnotfullyvegan = new ArrayList<String>();
+	//public static List<String> LFVAvoid = new ArrayList<String>();
+	//public static List<String> LFVOptinalRecipe = new ArrayList<String>();
+	
+	//public static List<String> AllergiesToFilter = new ArrayList<String>();
 	
 	//static ExcelReader excelReader;
 	static String filePath=".\\src\\test\\resources\\Data.xlsx";
@@ -32,8 +37,10 @@ public class ExcelData {
 	{
 		LCHFEliminate = readexcel.readColumnFromExcel(0,0);
 		LCHFAdd = readexcel.readColumnFromExcel(1,0);
-		LCHFAllergyMilk = readexcel.readColumnFromExcel(4,0);
-		LCHFAllergyNut = readexcel.readColumnFromExcel(5,0);	
+		LCHFAllergyMilk=readexcel.readColumnFromExcel(4,0);	
+		LCHFAllergyNut=	readexcel.readColumnFromExcel(5,0);	
+		//LCHAvoid = readexcel.readColumnFromExcel(2,0);
+		//LCHFoodProcessing = readexcel.readColumnFromExcel(3,0);
 	
 	}
 	
@@ -41,9 +48,12 @@ public class ExcelData {
 	{
 		LFVEliminate = readexcel.readColumnFromExcel(0,1);
 		LFVAdd = readexcel.readColumnFromExcel(1,1);
-		LFVAllergyMilk = readexcel.readColumnFromExcel(5,1);
-		LFVAllergyNut = readexcel.readColumnFromExcel(6,1);
-		
+		LFVAllergyMilk=readexcel.readColumnFromExcel(5,1);
+		LFVAllergyNut=	readexcel.readColumnFromExcel(6,1);
+		//LFVAddnotfullyvegan =  readexcel.readColumnFromExcel(2,1);
+		//LFVAvoid = readexcel.readColumnFromExcel(3,1);
+		//LFVOptinalRecipe = readexcel.readColumnFromExcel(4,1);
+
 	}
     
 }
