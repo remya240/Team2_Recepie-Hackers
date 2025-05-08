@@ -38,7 +38,6 @@ public class ExcelReader {
 
                     if (cell != null) {
                         columnData.add(cell.getStringCellValue());
-                        System.out.println(cell);
                     }
                 }
             }

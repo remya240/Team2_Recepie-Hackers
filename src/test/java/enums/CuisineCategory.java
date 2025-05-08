@@ -1,0 +1,36 @@
+package enums;
+
+public enum CuisineCategory {
+    SOUTH_INDIAN,
+    RAJATHANI,
+    PUNJABI,
+    BENGALI,
+    ORISSA,
+    GUJARATI,
+    MAHARASHTRIAN,
+    ANDHRA,
+    KERALA,
+    GOAN,
+    KASHMIRI,
+    HIMACHALI,
+    TAMILNADU,
+    KARNATAKA,
+    SINDHI,
+    CHHATTISGARHI,
+    MADHYAPRADESH,
+    ASSAMESE,
+    MANIPURI,
+    TRIPURI,
+    SIKKIMESE,
+    MIZO,
+    ARUNACHALI,
+    UTTARAKHAND,
+    HARYANVI,
+    AWADHI,
+    BIHARI,
+    UTTARPRADESH,
+    DELHI,
+    NORTH_INDIAN,
+    INDIAN
+
+}
