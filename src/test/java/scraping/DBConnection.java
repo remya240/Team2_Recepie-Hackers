@@ -78,11 +78,25 @@ public class DBConnection {
 
 	// Inserting data to database
 	public static void saveRecipeToDatabase(Recipe recipe, String tableName) {
-		String insertSQL = "INSERT INTO " + tableName
-				+ "(recipe_id, recipe_name, recipe_category, food_category, ingredients, "
-				+ "preparation_time, cooking_time, tag, no_of_servings, cuisine_category, "
-				+ "recipe_description, preparation_method, nutrient_values, recipe_url) "
-				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	    String insertSQL = "INSERT INTO " + tableName + " (" +
+	            "recipe_id, recipe_name, recipe_category, food_category, ingredients, " +
+	            "preparation_time, cooking_time, tag, no_of_servings, cuisine_category, " +
+	            "recipe_description, preparation_method, nutrient_values, recipe_url) " +
+	            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) " +
+	            "ON CONFLICT (recipe_id) DO UPDATE SET " +
+	            "recipe_name = EXCLUDED.recipe_name, " +
+	            "recipe_category = EXCLUDED.recipe_category, " +
+	            "food_category = EXCLUDED.food_category, " +
+	            "ingredients = EXCLUDED.ingredients, " +
+	            "preparation_time = EXCLUDED.preparation_time, " +
+	            "cooking_time = EXCLUDED.cooking_time, " +
+	            "tag = EXCLUDED.tag, " +
+	            "no_of_servings = EXCLUDED.no_of_servings, " +
+	            "cuisine_category = EXCLUDED.cuisine_category, " +
+	            "recipe_description = EXCLUDED.recipe_description, " +
+	            "preparation_method = EXCLUDED.preparation_method, " +
+	            "nutrient_values = EXCLUDED.nutrient_values, " +
+	            "recipe_url = EXCLUDED.recipe_url";
 		try (Connection conn = DriverManager.getConnection(dbUrl, user, password);
 				PreparedStatement preparedStatement = conn.prepareStatement(insertSQL)) {
 			preparedStatement.setString(1, recipe.getRecipeId());
