@@ -12,7 +12,6 @@ public class ConfigReader {
 	private static final Logger logger = LoggerFactory.getLogger(ConfigReader.class);
 
 	public ConfigReader() {
-		System.out.println("*****Insideconfigreader");
 		try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
 			if (input == null) {
 				throw new FileNotFoundException("config.properties file not found");

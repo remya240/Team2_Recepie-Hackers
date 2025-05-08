@@ -23,7 +23,7 @@ public class RecipeScraperTest extends BaseClass {
 
 		String recipeTab = driver.getWindowHandle();
 		int recipePages = getNumOfPages();
-		for (int j = 1; j <= 2; j++) {
+		for (int j = 1; j <= recipePages; j++) {
 			try {
 
 				List<WebElement> recipeBlocks = driver
@@ -32,7 +32,6 @@ public class RecipeScraperTest extends BaseClass {
 				for (WebElement recipeCard : recipeBlocks) {
 					Recipe recipe = new Recipe();
 
-					// String recipeName = recipeCard.findElement(By.tagName("h5")).getText();
 					WebElement recipeLink = recipeCard.findElement(By.tagName("a")); // recipe link
 
 					((JavascriptExecutor) driver).executeScript("window.open(arguments[0], '_blank');",
@@ -62,7 +61,6 @@ public class RecipeScraperTest extends BaseClass {
 					RecipeDetails.getRecipieDescription(recipe);
 					RecipeDetails.getUrl(recipe);
 					recipeList.add(recipe);
-					// lstRecipe.add(recipe);
 					closeTab(recipeDetailTab);
 					driver.switchTo().window(recipeTab);
 				}
@@ -73,16 +71,14 @@ public class RecipeScraperTest extends BaseClass {
 
 			List<WebElement> nextRecipePageButton = driver
 					.findElements(By.xpath("//ul[contains(@class,'pagination')]//a[text()='Next']"));
-			// System.out.println("Next Button: " + nextButton.size());
 
 			if (!nextRecipePageButton.isEmpty()) {
 				((JavascriptExecutor) driver).executeScript("arguments[0].click();", nextRecipePageButton.get(0));
-				// nextButton.get(0).click();
 				Thread.sleep(2000); // Wait for page to load
 			}
 		}
-		// filterEliminateRecipes(recipeList);
-		// filterAddRecipes(recipeList);
+		filterEliminateRecipes(recipeList);
+		filterAddRecipes(recipeList);
 		filterLFVAllergyNut(recipeList);
 		filterLCHFAllergyNut(recipeList);
 	}
@@ -91,9 +87,6 @@ public class RecipeScraperTest extends BaseClass {
 		// Get the total pages: find all page-number links and pick the highest
 		List<WebElement> pageLinks = driver
 				.findElements(By.xpath("//ul[contains(@class,'pagination')]//a[contains(@href,'?page=')]"));
-		// ul[contains(@class,'pagination')]//a[normalize-space(text()) != 'Next' and
-		// normalize-space(text()) != 'Previous' and normalize-space(text()) != '…']
-
 		int totalPages = 1;
 		for (WebElement link : pageLinks) {
 			String pageText = link.getText().trim();
@@ -148,14 +141,14 @@ public class RecipeScraperTest extends BaseClass {
 		System.out.println("Number of recipes for Eliminate table: " + eliminateList.size());
 
 		for (Recipe recipe : eliminateList) {
-			// DBConnection.saveRecipeToDatabase(recipe, "LFV_elemination");
+			DBConnection.saveRecipeToDatabase(recipe, "LFV_elemination");
 		}
 	}
 
 	public void filterAddRecipes(List<Recipe> recipeList) {
 		// Load Excel data
 		ExcelData.LoadLFVData();
-		// DBConnection.initConnection();
+		DBConnection.initConnection();
 
 		Set<Recipe> addList = recipeList.stream().filter(recipe -> {
 			boolean containsEliminate = ExcelData.LFVEliminate.stream()
@@ -171,16 +164,8 @@ public class RecipeScraperTest extends BaseClass {
 
 		System.out.println("Number of recipes for Add table: " + addList.size());
 
-		int counter = 1;
 		for (Recipe recipe : addList) {
-			System.out.println("\n" + counter + ". " + recipe.recipeName);
-			System.out.println("   - ID: " + recipe.recipeId);
-			System.out.println("   - Ingredients: " + recipe.ingredients);
-			System.out.println("   - Category: " + recipe.recipeCategory);
-			System.out.println("   - URL: " + recipe.recipeURL);
-
-			// DBConnection.saveRecipeToDatabase(recipe, "LFV_to_add");
-			counter++;
+			DBConnection.saveRecipeToDatabase(recipe, "LFV_to_add");
 		}
 
 		System.out.println("\nTotal " + addList.size() + " recipes saved to database.");
@@ -199,16 +184,8 @@ public class RecipeScraperTest extends BaseClass {
 
 		System.out.println("Number of recipes with nut allergens: " + nutAllergyRecipes.size());
 
-		int counter = 1;
 		for (Recipe recipe : nutAllergyRecipes) {
-			System.out.println("\n" + counter + ". " + recipe.recipeName);
-			System.out.println("   - ID: " + recipe.recipeId);
-			System.out.println("   - Ingredients: " + recipe.ingredients);
-			System.out.println("   - Category: " + recipe.recipeCategory);
-			System.out.println("   - URL: " + recipe.recipeURL);
-
 			DBConnection.saveRecipeToDatabase(recipe, "LFV_Allergy_Nut");
-			counter++;
 		}
 
 		System.out.println("\nTotal " + nutAllergyRecipes.size() + " recipes saved to database.");
@@ -227,16 +204,8 @@ public class RecipeScraperTest extends BaseClass {
 
 		System.out.println("Number of nut allergy recipes found: " + nutAllergyRecipes.size());
 
-		int counter = 1;
 		for (Recipe recipe : nutAllergyRecipes) {
-			System.out.println("\n" + counter + ". " + recipe.recipeName);
-			System.out.println("   - ID: " + recipe.recipeId);
-			System.out.println("   - Ingredients: " + recipe.ingredients);
-			System.out.println("   - Category: " + recipe.recipeCategory);
-			System.out.println("   - URL: " + recipe.recipeURL);
-
 			DBConnection.saveRecipeToDatabase(recipe, "LCHF_Allergy_Nut");
-			counter++;
 		}
 
 		System.out.println("\nTotal " + nutAllergyRecipes.size() + " recipes saved to database.");

@@ -1,10 +1,9 @@
 package enums;
 
-public enum  FoodCategory {
+public enum FoodCategory {
 	VEGAN,
 	JAIN,
 	EGGITARIAN,
 	NONVEGETARIAN,
-	VEGETARIAN
-	
+	VEGETARIAN	
 }
