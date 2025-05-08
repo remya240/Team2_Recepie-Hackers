@@ -12,7 +12,6 @@ public class ConfigReader {
 	private static final Logger logger = LoggerFactory.getLogger(ConfigReader.class);
 
 	public ConfigReader() {
-		System.out.println("*****Insideconfigreader");
 		try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
 			if (input == null) {
 				throw new FileNotFoundException("config.properties file not found");
@@ -20,7 +19,7 @@ public class ConfigReader {
 			properties.load(input);
 			logger.info("Config properties loaded");
 		} catch (Exception e) {
-			logger.info("Exception in configrReader "+e);
+			logger.info("Exception in configrReader " + e);
 			e.printStackTrace();
 		}
 	}
@@ -29,13 +28,8 @@ public class ConfigReader {
 		return properties.getProperty("url");
 	}
 
-
-
-
 	public String getBrowser() {
 		return properties.getProperty("browser");
 	}
-	
 
 }
-
