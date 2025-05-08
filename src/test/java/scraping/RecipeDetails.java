@@ -32,15 +32,13 @@ public class RecipeDetails extends BaseClass {
 	public static void getCookingTime(Recipe recipe) {
 
 		try {
-			WebElement cookTime = driver.findElement(By.xpath(
-					"//body[1]/main[1]/section[1]/div[1]/div[1]/div[1]/div[10]/div[1]/div[1]/div[1]/div[1]/div[2]/div[2]/p[1]"));
+			WebElement cookTime = driver.findElement(By.xpath("//div[@class='box-time']//div[2]//p[1]"));
 			recipe.cookingTime = cookTime.getText().trim();
 		} catch (Exception Ex) {
 			LoggerLoad.error("Cooking time element not found: " + Ex.getMessage());
 			recipe.cookingTime = "N/A";
 		}
 
-		// Print cooking time
 		System.out.println("Cooking Time: " + recipe.cookingTime);
 	}
 
@@ -54,7 +52,6 @@ public class RecipeDetails extends BaseClass {
 			recipe.prepTime = "N/A";
 		}
 
-// Print cooking time
 		System.out.println("Preparation Time: " + recipe.prepTime);
 	}
 
@@ -72,7 +69,8 @@ public class RecipeDetails extends BaseClass {
 
 	public static void GetNuritientValue(Recipe recipe) {
 		try {
-			WebElement nutrValue = driver.findElement(By.xpath("//figure[@class='table']"));
+			WebElement nutrValue = driver
+					.findElement(By.xpath("//figure[@class='table']/table | //table[@id='rcpnutrients']"));
 			recipe.nutritionValue = nutrValue.getText().trim();
 		} catch (Exception Ex) {
 			LoggerLoad.error("NutritionValue element not found: " + Ex.getMessage());
@@ -94,8 +92,8 @@ public class RecipeDetails extends BaseClass {
 
 	public static void getRecipeName(String url, Recipe recipe) {
 
-		String baseName = url.substring(url.lastIndexOf('/') + 1); // "paneer-masala-2404r"
-		String namePart = baseName.substring(0, baseName.lastIndexOf('-')); // "paneer-masala"
+		String baseName = url.substring(url.lastIndexOf('/') + 1);
+		String namePart = baseName.substring(0, baseName.lastIndexOf('-'));
 
 		// Replace hyphens with spaces
 		recipe.recipeName = namePart.replace("-", " ");
@@ -185,7 +183,5 @@ public class RecipeDetails extends BaseClass {
 			LoggerLoad.error("ingredients element not found: " + e.getMessage());
 		}
 	}
-
-
 
 }
