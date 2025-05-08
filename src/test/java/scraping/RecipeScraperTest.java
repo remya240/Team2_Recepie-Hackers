@@ -23,7 +23,7 @@ public class RecipeScraperTest extends BaseClass {
 
 		String recipeTab = driver.getWindowHandle();
 		int recipePages = getNumOfPages();
-		for (int j = 1; j <= recipePages; j++) {
+		for (int j = 1; j <=recipePages ; j++) {
 			try {
 
 				List<WebElement> recipeBlocks = driver
