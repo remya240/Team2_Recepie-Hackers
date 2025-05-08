@@ -12,7 +12,7 @@ import java.sql.SQLException;
 public class DBConnection {
 
 	private static String user = "postgres";
-	private static String password = "1717E@birch";
+	private static String password = "Hackathon3";
 	private static String dbName = "Recipe";
 	private static String serverUrl = "jdbc:postgresql://localhost:5432/";
 	private static String dbUrl = serverUrl + dbName;
@@ -35,51 +35,45 @@ public class DBConnection {
 		}
 
 		try (Connection conn = DriverManager.getConnection(dbUrl, user, password);
-				Statement stmt = conn.createStatement()) {
+			     Statement stmt = conn.createStatement()) {
 
-			// Create LFV_elemination
-			String table1 = "CREATE TABLE IF NOT EXISTS LFV_elemination (" + "Recipe_ID VARCHAR(50) PRIMARY KEY, "
-					+ "Recipe_Name VARCHAR(255) NOT NULL, " + "Recipe_Category VARCHAR(300), "
-					+ "Food_Category VARCHAR(300), " + "Ingredients TEXT, " + "Preparation_Time VARCHAR(50), "
-					+ "Cooking_Time VARCHAR(50), " + "Tag VARCHAR(300), " + "No_of_servings VARCHAR(50), "
-					+ "Cuisine_category VARCHAR(300), " + "Recipe_Description TEXT, " + "Preparation_method TEXT, "
-					+ "Nutrient_values TEXT, " + "Recipe_URL VARCHAR(500)" + ");";
-			stmt.executeUpdate(table1);
-			System.out.println("Table 'LFV_elemination' created successfully!");
+			    String[] tableNames = {
+			        "LFV_elemination",
+			        "LFV_to_add",
+			        "LFV_Allergy_Milk",
+			        "LFV_Allergy_Nut",
+			        "LCHF_elemination",
+			        "LCHF_to_add",
+			        "LCHF_Allergy_Milk",
+			        "LCHF_Allergy_Nut"
+			    };
 
-			// Create LFV_to_add
-			String table2 = "CREATE TABLE IF NOT EXISTS LFV_to_add (" + "Recipe_ID VARCHAR(50) PRIMARY KEY, "
-					+ "Recipe_Name VARCHAR(255) NOT NULL, " + "Recipe_Category VARCHAR(300), "
-					+ "Food_Category VARCHAR(300), " + "Ingredients TEXT, " + "Preparation_Time VARCHAR(50), "
-					+ "Cooking_Time VARCHAR(50), " + "Tag VARCHAR(300), " + "No_of_servings VARCHAR(50), "
-					+ "Cuisine_category VARCHAR(300), " + "Recipe_Description TEXT, " + "Preparation_method TEXT, "
-					+ "Nutrient_values TEXT, " + "Recipe_URL VARCHAR(500)" + ");";
-			stmt.executeUpdate(table2);
-			System.out.println("Table 'LFV_to_add' created successfully!");
-			// Create LFV_Allergy_Milk
-			String table3 = "CREATE TABLE IF NOT EXISTS LFV_Allergy_Milk (" + "Recipe_ID VARCHAR(50) PRIMARY KEY, "
-					+ "Recipe_Name VARCHAR(255) NOT NULL, " + "Recipe_Category VARCHAR(300), "
-					+ "Food_Category VARCHAR(300), " + "Ingredients TEXT, " + "Preparation_Time VARCHAR(50), "
-					+ "Cooking_Time VARCHAR(50), " + "Tag VARCHAR(300), " + "No_of_servings VARCHAR(50), "
-					+ "Cuisine_category VARCHAR(100), " + "Recipe_Description TEXT, " + "Preparation_method TEXT, "
-					+ "Nutrient_values TEXT, " + "Recipe_URL VARCHAR(500)" + ");";
-			stmt.executeUpdate(table3);
-			System.out.println("Table 'LFV_Allergy_Milk' created successfully!");
+			    for (String tableName : tableNames) {
+			        String createTableSQL = "CREATE TABLE IF NOT EXISTS " + tableName + " (" +
+			                "Recipe_ID VARCHAR(50) PRIMARY KEY, " +
+			                "Recipe_Name VARCHAR(255) NOT NULL, " +
+			                "Recipe_Category VARCHAR(300), " +
+			                "Food_Category VARCHAR(300), " +
+			                "Ingredients TEXT, " +
+			                "Preparation_Time VARCHAR(50), " +
+			                "Cooking_Time VARCHAR(50), " +
+			                "Tag VARCHAR(300), " +
+			                "No_of_servings VARCHAR(50), " +
+			                "Cuisine_category VARCHAR(300), " +
+			                "Recipe_Description TEXT, " +
+			                "Preparation_method TEXT, " +
+			                "Nutrient_values TEXT, " +
+			                "Recipe_URL VARCHAR(500)" +
+			                ");";
+			        stmt.executeUpdate(createTableSQL);
+			        System.out.println("Table '" + tableName + "' created successfully!");
+			    }
 
-			// Create LFV_Allergy_Nut
-			String table4 = "CREATE TABLE IF NOT EXISTS LFV_Allergy_Nut (" + "Recipe_ID VARCHAR(50) PRIMARY KEY, "
-					+ "Recipe_Name VARCHAR(255) NOT NULL, " + "Recipe_Category VARCHAR(300), "
-					+ "Food_Category VARCHAR(300), " + "Ingredients TEXT, " + "Preparation_Time VARCHAR(50), "
-					+ "Cooking_Time VARCHAR(50), " + "Tag VARCHAR(300), " + "No_of_servings VARCHAR(50), "
-					+ "Cuisine_category VARCHAR(300), " + "Recipe_Description TEXT, " + "Preparation_method TEXT, "
-					+ "Nutrient_values TEXT, " + "Recipe_URL VARCHAR(500)" + ");";
-			stmt.executeUpdate(table4);
-			System.out.println("Table 'LFV_Allergy_Nut' created successfully!");
+			} catch (SQLException e) {
+			    System.out.println("Error while creating tables:");
+			    e.printStackTrace();
+			}
 
-		} catch (SQLException e) {
-			System.out.println("Error while creating tables:");
-			e.printStackTrace();
-		}
 	}
 
 	// Inserting data to database
