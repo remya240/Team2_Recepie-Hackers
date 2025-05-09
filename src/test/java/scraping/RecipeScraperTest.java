@@ -71,6 +71,7 @@ public class RecipeScraperTest extends BaseClass {
 					RecipeDetails.getRecipieDescription(recipe);
 					RecipeDetails.getUrl(recipe);
 					recipeList.add(recipe);
+					saveLastCompletedPage(k); // <-- Save progress only after success
 					closeTab(recipeDetailTab);
 					driver.switchTo().window(recipeTab);
 				}
