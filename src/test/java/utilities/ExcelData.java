@@ -1,4 +1,3 @@
-
 package utilities;
 
 import java.io.IOException;
@@ -9,7 +8,6 @@ public class ExcelData {
 
 	public static List<String> LCHFEliminate= new ArrayList<String>();
 	public static List<String> LCHFAdd = new ArrayList<String>();
-
 	public static List<String> LCHFAllergyMilk= new ArrayList<String>();
 	public static List<String> LCHFAllergyNut = new ArrayList<String>();
 	
@@ -53,7 +51,7 @@ public class ExcelData {
 		//LFVAddnotfullyvegan =  readexcel.readColumnFromExcel(2,1);
 		//LFVAvoid = readexcel.readColumnFromExcel(3,1);
 		//LFVOptinalRecipe = readexcel.readColumnFromExcel(4,1);
-
 	}
-    
+	
+    			
 }
