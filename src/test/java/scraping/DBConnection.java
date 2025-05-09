@@ -8,7 +8,7 @@ import java.sql.*;
 public class DBConnection {
 
     private static String user = "postgres";
-    private static String password = "Aamius@1";
+    private static String password = "yourpassword";
     private static String dbName = "Recipe";
     private static String serverUrl = "jdbc:postgresql://localhost:5432/";
     private static String dbUrl = serverUrl + dbName;
