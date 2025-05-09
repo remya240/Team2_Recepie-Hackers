@@ -32,6 +32,4 @@ public enum CuisineCategory {
     DELHI,
     NORTH_INDIAN,
     INDIAN
-
 }
-

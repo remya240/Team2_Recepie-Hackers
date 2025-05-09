@@ -1,15 +1,19 @@
 package scraping;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.testng.annotations.Test;
-
 import data.Recipe;
 import testBase.BaseClass;
 import utilities.ExcelData;
@@ -25,8 +29,7 @@ public class RecipeScraperTest extends BaseClass {
 
 		String recipeTab = driver.getWindowHandle();
 		int recipePages = getNumOfPages();
-
-		for (int j = 1; j <=recipePages ; j++) {
+		for (int j = 1; j <= recipePages; j++) {
 			try {
 
 				List<WebElement> recipeBlocks = driver
@@ -64,7 +67,6 @@ public class RecipeScraperTest extends BaseClass {
 					RecipeDetails.getRecipieDescription(recipe);
 					RecipeDetails.getUrl(recipe);
 					recipeList.add(recipe);
-
 					closeTab(recipeDetailTab);
 					driver.switchTo().window(recipeTab);
 				}
@@ -78,25 +80,65 @@ public class RecipeScraperTest extends BaseClass {
 
 			if (!nextRecipePageButton.isEmpty()) {
 				((JavascriptExecutor) driver).executeScript("arguments[0].click();", nextRecipePageButton.get(0));
-				Thread.sleep(2000); // Wait for page to load
+				Thread.sleep(2000); 
 			}
+
+			int lastPage = getLastCompletedPage(); // <-- Start from here
+			int totalPages = getNumOfPages();
+			System.out.println("Resuming from page: " + (lastPage + 1) + " of " + totalPages);
+			for (int k = lastPage + 1; k <= totalPages; k++) {
+				System.out.println("===== Scraping Page: " + k + " =====");
+				try {
+					saveLastCompletedPage(k); 
+				} catch (Exception e) {
+					System.err.println("Error on page " + k + ": " + e.getMessage());
+					break;
+				}
+			}
+
 		}
 		filterLFVElimination(recipeList);
-		filterAddRecipes(recipeList);
-		filterLFVAllergyNut(recipeList);
-    filterLFVAllergyMilk(recipeList);
-		filterAddRecipesLCHF(recipeList);
-		filterEliminateRecipesLCHF(recipeList);
-		filterLCHFAllergyMilk(recipeList);
-		filterLCHFAllergyNut(recipeList);
+		Set<Recipe> afterlfvAddRecipes = filterLFVAdd(recipeList);
+		filterLFVAllergyNut(new ArrayList<>(afterlfvAddRecipes));
+		filterLFVAllergyMilk(new ArrayList<>(afterlfvAddRecipes));
+		filterLFVRecipestoavoid(new ArrayList<>(afterlfvAddRecipes));
+		filterLFVNotFullyVegan(recipeList);
 
+		filterLCHFElimination(recipeList);
+		Set<Recipe> afterlchfAddRecipes = filterLCHFAdd(recipeList);
+		filterLCHFAllergyNut(new ArrayList<>(afterlchfAddRecipes));
+		filterLCHFAllergyMilk(new ArrayList<>(afterlchfAddRecipes));
+		filterLCHFRecipestoavoid(new ArrayList<>(afterlchfAddRecipes));
+	}
+
+	private int getLastCompletedPage() {
+		try {
+			File file = new File("progress.txt");
+			if (file.exists()) {
+				BufferedReader reader = new BufferedReader(new FileReader(file));
+				String line = reader.readLine();
+				reader.close();
+				return line != null ? Integer.parseInt(line) : 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	private void saveLastCompletedPage(int page) {
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter("progress.txt"));
+			writer.write(String.valueOf(page));
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private int getNumOfPages() {
-		// Get the total pages: find all page-number links and pick the highest
 		List<WebElement> pageLinks = driver
 				.findElements(By.xpath("//ul[contains(@class,'pagination')]//a[contains(@href,'?page=')]"));
-
 		int totalPages = 1;
 		for (WebElement link : pageLinks) {
 			String pageText = link.getText().trim();
@@ -106,7 +148,7 @@ public class RecipeScraperTest extends BaseClass {
 					totalPages = pageNum;
 				}
 			} catch (NumberFormatException e) {
-				// Skip if not a number, e.g. ellipsis (…)
+				
 			}
 		}
 		System.out.println("Total pages: " + totalPages);
@@ -125,16 +167,13 @@ public class RecipeScraperTest extends BaseClass {
 		for (String handle : allWindows) {
 			if (handle.equals(handleToClose)) {
 				driver.switchTo().window(handle);
-				driver.close(); // This closes the tab
+				driver.close(); 
 				break;
 			}
 		}
 	}
 
-
 	public void filterLFVElimination(List<Recipe> recipeList) {
-
-		// Load Excel data
 		ExcelData.LoadLFVData();
 		DBConnection.initConnection();
 
@@ -157,159 +196,169 @@ public class RecipeScraperTest extends BaseClass {
 		}
 	}
 
-	public void filterAddRecipes(List<Recipe> recipeList) {
-		// Load Excel data
+	public Set<Recipe> filterLFVAdd(List<Recipe> recipeList) {
 		ExcelData.LoadLFVData();
 		DBConnection.initConnection();
-
 		Set<Recipe> addList = recipeList.stream().filter(recipe -> {
 			boolean containsEliminate = ExcelData.LFVEliminate.stream()
 					.anyMatch(value -> recipe.ingredients.contains(value));
-
 			if (containsEliminate)
 				return false;
-
 			boolean containsAdd = ExcelData.LFVAdd.stream().anyMatch(value -> recipe.ingredients.contains(value));
-
 			return containsAdd; // Only difference is this return value
 		}).collect(Collectors.toSet());
-
 		System.out.println("Number of recipes for Add table: " + addList.size());
-
+		System.out.println("\nTotal " + addList.size() + " recipes saved to database.");
 		for (Recipe recipe : addList) {
 			DBConnection.saveRecipeToDatabase(recipe, "LFV_to_add");
 		}
-
-		System.out.println("\nTotal " + addList.size() + " recipes saved to database.");
+		return addList;
 	}
 
 	public void filterLFVAllergyNut(List<Recipe> recipeList) {
-
 		// Load Excel data
 		ExcelData.LoadLFVData();
 		DBConnection.initConnection();
-
-		Set<Recipe> nutAllergyRecipes = recipeList.stream().filter(recipe -> {
-			boolean containsNut = ExcelData.LFVAllergyNut.stream()
-					.anyMatch(nut -> recipe.ingredients.toLowerCase().contains(nut));
-			return containsNut;
-		}).collect(Collectors.toSet());
-
-		System.out.println("Number of recipes with nut allergens: " + nutAllergyRecipes.size());
-
-		for (Recipe recipe : nutAllergyRecipes) {
+		Set<Recipe> lfvAllergyNutRecipes = recipeList.stream().filter(
+				recipe -> ExcelData.LFVAllergyNut.stream().noneMatch(value -> recipe.ingredients.contains(value)))
+				.collect(Collectors.toSet());
+		System.out.println("Number of Allergy nut " + lfvAllergyNutRecipes.size());
+		for (Recipe recipe : lfvAllergyNutRecipes) {
 			DBConnection.saveRecipeToDatabase(recipe, "LFV_Allergy_Nut");
 		}
-
-		System.out.println("\nTotal " + nutAllergyRecipes.size() + " recipes saved to database.");
+		System.out.println("\nTotal " + lfvAllergyNutRecipes.size() + " recipes saved to database.");
 	}
 
-	public void filterLCHFAllergyNut(List<Recipe> recipeList) {
-
-		// Load Excel data
-		ExcelData.LoadLCHFData();
+	public void filterLFVAllergyMilk(List<Recipe> recipeList) {
+		ExcelData.LoadLFVData();
 		DBConnection.initConnection();
-
-		Set<Recipe> nutAllergyRecipes = recipeList.stream().filter(recipe -> {
-			boolean containsNut = ExcelData.LCHFAllergyNut.stream()
-					.anyMatch(nut -> recipe.ingredients.toLowerCase().contains(nut));
-			return containsNut;
-		}).collect(Collectors.toSet());
-
-		System.out.println("Number of nut allergy recipes found: " + nutAllergyRecipes.size());
-
-		for (Recipe recipe : nutAllergyRecipes) {
-			DBConnection.saveRecipeToDatabase(recipe, "LCHF_Allergy_Nut");
+		Set<Recipe> lfvAllergymilk = recipeList.stream().filter(
+				recipe -> ExcelData.LFVAllergyMilk.stream().noneMatch(value -> recipe.ingredients.contains(value)))
+				.collect(Collectors.toSet());
+		System.out.println("Number of Allergy Milk: " + lfvAllergymilk.size());
+		for (Recipe recipe : lfvAllergymilk) {
+			DBConnection.saveRecipeToDatabase(recipe, "LFV_Allergy_Milk");
 		}
-
-		System.out.println("\nTotal " + nutAllergyRecipes.size() + " recipes saved to database.");
+		System.out.println("\nTotal " + lfvAllergymilk.size() + " recipes saved to database.");
 	}
-  public void filterLFVAllergyMilk(List<Recipe> recipeList) {
-		// Load Excel data
+
+	public void filterLFVRecipestoavoid(List<Recipe> recipeList) {
+
 		ExcelData.LoadLFVData();
 		DBConnection.initConnection();
 
-		Set<Recipe> lfvAllergyMilk = recipeList.stream().filter(recipe -> {
+		Set<Recipe> recipesToAvoid = recipeList.stream().filter(recipe -> recipe.recipeDescription != null)
+				.filter(recipe -> {
+					String desc = recipe.recipeDescription.toLowerCase();
+					return ExcelData.LFVAvoid.stream().map(String::toLowerCase).anyMatch(desc::contains);
+				}).collect(Collectors.toSet());
+
+		for (Recipe recipe : recipesToAvoid) {
+			DBConnection.saveRecipeToDatabase(recipe, "LFV_Recipe_to_avoid");
+		}
+	}
+
+	// LFVNot fully Vegan
+	public void filterLFVNotFullyVegan(List<Recipe> recipeList) {
+		ExcelData.LoadLFVData();
+		DBConnection.initConnection();
+		Set<Recipe> lfvNotFullyVeganRecipes = recipeList.stream().filter(recipe -> {
 			boolean containsEliminate = ExcelData.LFVEliminate.stream()
 					.anyMatch(value -> recipe.ingredients.contains(value));
-
 			if (containsEliminate)
 				return false;
-
-			boolean containsAdd = ExcelData.LFVAllergyMilk.stream().anyMatch(value -> recipe.ingredients.contains(value));
-
-			return !containsAdd;
+			boolean containsAdd = ExcelData.LFVAddnotfullyvegan.stream().anyMatch(value -> recipe.ingredients.contains(value));
+			return containsAdd;
 		}).collect(Collectors.toSet());
-
-		System.out.println("Number of recipes for Eliminate table: " + lfvAllergyMilk.size());
-		System.out.println("\nTotal " + lfvAllergyMilk.size() + " recipes saved to database.");
-
-		for (Recipe recipe : lfvAllergyMilk) {
-			DBConnection.saveRecipeToDatabase(recipe, "LFV_Allergy_Milk");
+		System.out.println("Number of recipes for LFVNot fully Vegan table: " + lfvNotFullyVeganRecipes.size());
+		for (Recipe recipe : lfvNotFullyVeganRecipes) {
+			DBConnection.saveRecipeToDatabase(recipe, "LFV_NotFully_Vegan");
 		}
 	}
-	
-	public void filterLCHFAllergyMilk(List<Recipe> recipeList) {
-		// Load Excel data
+
+	public void filterLCHFElimination(List<Recipe> recipeList) {
 		ExcelData.LoadLCHFData();
 		DBConnection.initConnection();
 
-		Set<Recipe> lchfAllergyMilk = recipeList.stream().filter(recipe -> {
-			boolean containsEliminate = ExcelData.LCHFEliminate.stream()
-					.anyMatch(value -> recipe.ingredients.contains(value));
-
-			if (containsEliminate)
-				return false;
-
-			boolean containsAdd = ExcelData.LCHFAllergyMilk.stream().anyMatch(value -> recipe.ingredients.contains(value));
-
-			return !containsAdd;
-		}).collect(Collectors.toSet());
-
-		System.out.println("Number of recipes for Eliminate table: " + lchfAllergyMilk.size());
-		System.out.println("\nTotal " + lchfAllergyMilk.size() + " recipes saved to database.");
-
-		for (Recipe recipe : lchfAllergyMilk) {
-			DBConnection.saveRecipeToDatabase(recipe, "LCHF_Allergy_Milk ");
-		}
-	}
-	public void filterEliminateRecipesLCHF(List<Recipe> recipeList) {
-		// Load Excel data
-		ExcelData.LoadLCHFData();
-		DBConnection.initConnection();
 		Set<Recipe> eliminateList = recipeList.stream().filter(recipe -> {
 			boolean containsEliminate = ExcelData.LCHFEliminate.stream()
 					.anyMatch(value -> recipe.ingredients.contains(value));
+
 			if (containsEliminate)
 				return false;
-			boolean containsAdd = ExcelData.LCHFAdd. stream().anyMatch(value -> recipe.ingredients.contains(value));
+
+			boolean containsAdd = ExcelData.LCHFAdd.stream().anyMatch(value -> recipe.ingredients.contains(value));
+
 			return !containsAdd;
 		}).collect(Collectors.toSet());
-		System.out.println("Number of recipes for Eliminate table LCHF: " + eliminateList.size());
+
+		System.out.println("Number of recipes for Eliminate table: " + eliminateList.size());
+
 		for (Recipe recipe : eliminateList) {
 			DBConnection.saveRecipeToDatabase(recipe, "LCHF_elemination");
 		}
-		
 	}
-	public void filterAddRecipesLCHF(List<Recipe> recipeList) {
+
+	public Set<Recipe> filterLCHFAdd(List<Recipe> recipeList) {
 		// Load Excel data
 		ExcelData.LoadLCHFData();
 		DBConnection.initConnection();
 		Set<Recipe> addList = recipeList.stream().filter(recipe -> {
-			boolean containsEliminate = ExcelData.LCHFAdd.stream()
+			boolean containsEliminate = ExcelData.LCHFEliminate.stream()
 					.anyMatch(value -> recipe.ingredients.contains(value));
 			if (containsEliminate)
 				return false;
 			boolean containsAdd = ExcelData.LCHFAdd.stream().anyMatch(value -> recipe.ingredients.contains(value));
 			return containsAdd; // Only difference is this return value
 		}).collect(Collectors.toSet());
-		System.out.println("Number of recipes for Add table LCHF: " + addList.size());
+		System.out.println("Number of recipes for Add table: " + addList.size());
+		System.out.println("\nTotal " + addList.size() + " recipes saved to database.");
 		for (Recipe recipe : addList) {
 			DBConnection.saveRecipeToDatabase(recipe, "LCHF_to_add");
 		}
-		System.out.println("\nTotal " + addList.size() + " recipes saved to database.");
+		return addList;
 	}
 
+	public void filterLCHFAllergyNut(List<Recipe> recipeList) {
+		ExcelData.LoadLCHFData();
+		DBConnection.initConnection();
+		Set<Recipe> lchfAllergyNutRecipes = recipeList.stream().filter(
+				recipe -> ExcelData.LCHFAllergyNut.stream().noneMatch(value -> recipe.ingredients.contains(value)))
+				.collect(Collectors.toSet());
+		System.out.println("Number of LCHFAllergyNut recipes: " + lchfAllergyNutRecipes.size());
+		for (Recipe recipe : lchfAllergyNutRecipes) {
+			DBConnection.saveRecipeToDatabase(recipe, "LCHF_Allergy_Nut");
+		}
+		System.out.println("\nTotal " + lchfAllergyNutRecipes.size() + " recipes saved to database.");
+	}
+
+	public void filterLCHFAllergyMilk(List<Recipe> recipeList) {
+		ExcelData.LoadLCHFData();
+		DBConnection.initConnection();
+		Set<Recipe> lCHFAllergymilk = recipeList.stream().filter(
+				recipe -> ExcelData.LCHFAllergyMilk.stream().noneMatch(value -> recipe.ingredients.contains(value)))
+				.collect(Collectors.toSet());
+		System.out.println("Number of lCHFAllergymilk: " + lCHFAllergymilk.size());
+		for (Recipe recipe : lCHFAllergymilk) {
+			DBConnection.saveRecipeToDatabase(recipe, "LCHF_Allergy_Milk");
+		}
+		System.out.println("\nTotal " + lCHFAllergymilk.size() + " recipes saved to database.");
+	}
+
+	public void filterLCHFRecipestoavoid(List<Recipe> recipeList) {
+
+		ExcelData.LoadLCHFData();
+		DBConnection.initConnection();
+
+		Set<Recipe> recipesToAvoid = recipeList.stream().filter(recipe -> recipe.recipeDescription != null)
+				.filter(recipe -> {
+					String desc = recipe.recipeDescription.toLowerCase();
+					return ExcelData.LCHAvoid.stream().map(String::toLowerCase).anyMatch(desc::contains);
+				}).collect(Collectors.toSet());
+
+		for (Recipe recipe : recipesToAvoid) {
+			DBConnection.saveRecipeToDatabase(recipe, "LCHF_Recipe_to_avoid");
+		}
+	}
 
 }
-
