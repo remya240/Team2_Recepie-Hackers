@@ -1,14 +1,10 @@
 package scraping;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+
 import data.Recipe;
 import enums.CuisineCategory;
-
 import enums.FoodCategory;
 import enums.RecipeCategory;
 import testBase.BaseClass;
@@ -41,8 +37,6 @@ public class RecipeDetails extends BaseClass {
 			recipe.cookingTime = "N/A";
 		}
 
-		System.out.println("Cooking Time: " + recipe.cookingTime);
-
 	}
 
 	public static void getPreparationTime(Recipe recipe) {
@@ -54,8 +48,6 @@ public class RecipeDetails extends BaseClass {
 			LoggerLoad.error("Preparation time element not found: " + Ex.getMessage());
 			recipe.prepTime = "N/A";
 		}
-
-		System.out.println("Preparation Time: " + recipe.prepTime);
 	}
 
 	public static void GetPreparationMethod(Recipe recipe) {
@@ -67,7 +59,6 @@ public class RecipeDetails extends BaseClass {
 			recipe.preparationMethod = "N/A";
 		}
 
-		System.out.println("preparationMethod : " + recipe.preparationMethod);
 	}
 
 	public static void GetNuritientValue(Recipe recipe) {
@@ -79,8 +70,6 @@ public class RecipeDetails extends BaseClass {
 			LoggerLoad.error("NutritionValue element not found: " + Ex.getMessage());
 			recipe.nutritionValue = "N/A";
 		}
-
-		System.out.println("NutritionValue : " + recipe.nutritionValue);
 
 	}
 
@@ -101,7 +90,6 @@ public class RecipeDetails extends BaseClass {
 
 		// Replace hyphens with spaces
 		recipe.recipeName = namePart.replace("-", " ");
-		System.out.println("Recipe Name+++ " + recipe.recipeName);
 	}
 
 	public static void getNoofserving(Recipe recipe) {
@@ -113,8 +101,6 @@ public class RecipeDetails extends BaseClass {
 			LoggerLoad.error("No of servings element not found: " + Ex.getMessage());
 			recipe.noOfServings = "N/A";
 		}
-
-		System.out.println("No of servings : " + recipe.noOfServings);
 
 	}
 
@@ -128,14 +114,12 @@ public class RecipeDetails extends BaseClass {
 			recipe.recipeDescription = "N/A";
 		}
 
-		System.out.println("Description : " + recipe.recipeDescription);
 	}
 
 	public static void getTags(Recipe recipe) {
 		try {
 			WebElement tagElements = driver.findElement(By.className("tags-list"));
 			recipe.tag = tagElements.getText();
-			System.out.println("Tags--" + recipe.tag);
 		} catch (Exception e) {
 			LoggerLoad.error("Tags element not found: " + e.getMessage());
 		}
@@ -143,13 +127,13 @@ public class RecipeDetails extends BaseClass {
 
 	public static FoodCategory getFoodCategory(String recipeName, String recipeTag) {
 		{
-			if (recipeName.contains("Vegan") || recipeTag.contains("Vegan"))
+			if ((recipeName!=null && recipeName.contains("Vegan")) || (recipeTag!= null && recipeTag.contains("Vegan")))
 				return FoodCategory.VEGAN;
-			else if (recipeName.contains("Jain") || recipeTag.contains("Jain"))
+			else if ((recipeName!=null && recipeName.contains("Jain")) || (recipeTag!= null && recipeTag.contains("Jain")))
 				return FoodCategory.JAIN;
-			else if (recipeName.contains("Egg ") || recipeTag.contains("Egg "))
+			else if ((recipeName!=null && recipeName.contains("Egg ")) || (recipeTag!= null && recipeTag.contains("Egg ")))
 				return FoodCategory.EGGITARIAN;
-			else if (recipeName.contains("NonVeg") || recipeTag.contains("NonVeg"))
+			else if ((recipeName!=null && recipeName.contains("NonVeg")) || (recipeTag!= null && recipeTag.contains("NonVeg")))
 				return FoodCategory.NONVEGETARIAN;
 			else
 				return FoodCategory.VEGETARIAN;
@@ -158,17 +142,20 @@ public class RecipeDetails extends BaseClass {
 	}
 
 	public static RecipeCategory getRecipeCategory(String recipeName, String recipeTags) {
-		if (recipeName.contains("Breakfast") || recipeTags.contains("Breakfast"))
+		if ((recipeName!=null && recipeName.contains("Breakfast")) || (recipeTags!= null && recipeTags.contains("Breakfast")))
 			return RecipeCategory.BREAKFAST;
-		else if (recipeName.contains("Lunch") || recipeTags.contains("Lunch"))
+		else if ((recipeName!=null && recipeName.contains("Lunch")) || (recipeTags!= null && recipeTags.contains("Lunch")))
 			return RecipeCategory.LUNCH;
-		else if (recipeName.contains("Dinner") || recipeTags.contains("Dinner"))
+		else if ((recipeName!=null && recipeName.contains("Dinner")) || (recipeTags!= null && recipeTags.contains("Dinner")))
 			return RecipeCategory.DINNER;
 		else
 			return RecipeCategory.SNACKS;
 	}
 
 	public static CuisineCategory getCuisineCategory(String tag) {
+		if(tag == null) {
+			return CuisineCategory.INDIAN;
+		}
 		String clearedTag = tag.replaceAll("\\s+", "_");
 		for (CuisineCategory cuisineCategory : CuisineCategory.values()) {
 			if (clearedTag.toUpperCase().contains(cuisineCategory.name())) {
@@ -183,7 +170,6 @@ public class RecipeDetails extends BaseClass {
 		try {
 			WebElement ingredientSection = driver.findElement(By.id("ingredients"));
 			recipe.ingredients = ingredientSection.getText().trim();
-			System.out.println("Ingrediants List---" + recipe.ingredients);
 		} catch (Exception e) {
 			LoggerLoad.error("ingredients element not found: " + e.getMessage());
 		}
