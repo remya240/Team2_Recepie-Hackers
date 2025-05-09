@@ -56,7 +56,6 @@ public class DriverFactory {
 			threadDriver.set(new ChromeDriver(options));
 			LoggerLoad.info("Initializing Chrome driver in headless mode");
 
-
 		} else if (browser.equalsIgnoreCase("Firefox")) {
 			threadDriver.set(new FirefoxDriver());
 		} else if (browser.equalsIgnoreCase("Edge")) {

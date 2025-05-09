@@ -1,8 +1,8 @@
 package testBase;
 
 import org.openqa.selenium.WebDriver;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
-
 import driverManager.DriverFactory;
 import utilities.ConfigReader;
 
@@ -30,16 +30,14 @@ public class BaseClass {
 		driver.get(url);
 		driver.manage().window().maximize();
 		// driver.get("https://www.tarladalal.com/");
-		
-		
 	}
-	
-//	@AfterSuite
-//	public static void quitDriver() {
-//		if (driver != null) {
-//			driver.quit();
-//		}
-//	}
+
+	@AfterSuite
+	public static void quitDriver() {
+		if (driver != null) {
+			driver.quit();
+		}
+	}
 
 	public static WebDriver getDriver() {
 		return driver;
