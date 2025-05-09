@@ -8,6 +8,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import data.Recipe;
 import enums.CuisineCategory;
+
 import enums.FoodCategory;
 import enums.RecipeCategory;
 import testBase.BaseClass;
@@ -33,6 +34,7 @@ public class RecipeDetails extends BaseClass {
 
 		try {
 			WebElement cookTime = driver.findElement(By.xpath("//div[@class='box-time']//div[2]//p[1]"));
+
 			recipe.cookingTime = cookTime.getText().trim();
 		} catch (Exception Ex) {
 			LoggerLoad.error("Cooking time element not found: " + Ex.getMessage());
@@ -40,6 +42,7 @@ public class RecipeDetails extends BaseClass {
 		}
 
 		System.out.println("Cooking Time: " + recipe.cookingTime);
+
 	}
 
 	public static void getPreparationTime(Recipe recipe) {
@@ -78,6 +81,7 @@ public class RecipeDetails extends BaseClass {
 		}
 
 		System.out.println("NutritionValue : " + recipe.nutritionValue);
+
 	}
 
 	public static String getRecipeID(String url) {
@@ -111,6 +115,7 @@ public class RecipeDetails extends BaseClass {
 		}
 
 		System.out.println("No of servings : " + recipe.noOfServings);
+
 	}
 
 	public static void getRecipieDescription(Recipe recipe) {
@@ -185,3 +190,4 @@ public class RecipeDetails extends BaseClass {
 	}
 
 }
+

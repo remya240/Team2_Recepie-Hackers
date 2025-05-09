@@ -89,8 +89,7 @@ public class RecipeScraperTest extends BaseClass {
 			for (int k = lastPage + 1; k <= totalPages; k++) {
 				System.out.println("===== Scraping Page: " + k + " =====");
 				try {
-					// ... existing scraping logic ...
-					saveLastCompletedPage(k); // <-- Save progress only after success
+					saveLastCompletedPage(k); 
 				} catch (Exception e) {
 					System.err.println("Error on page " + k + ": " + e.getMessage());
 					break;
@@ -103,7 +102,7 @@ public class RecipeScraperTest extends BaseClass {
 		filterLFVAllergyNut(new ArrayList<>(afterlfvAddRecipes));
 		filterLFVAllergyMilk(new ArrayList<>(afterlfvAddRecipes));
 		filterLFVRecipestoavoid(new ArrayList<>(afterlfvAddRecipes));
-		filterLFVNotFullyVegan(new ArrayList<>(afterlfvAddRecipes));
+		filterLFVNotFullyVegan(recipeList);
 
 		filterLCHFElimination(recipeList);
 		Set<Recipe> afterlchfAddRecipes = filterLCHFAdd(recipeList);
@@ -138,7 +137,6 @@ public class RecipeScraperTest extends BaseClass {
 	}
 
 	private int getNumOfPages() {
-		// Get the total pages: find all page-number links and pick the highest
 		List<WebElement> pageLinks = driver
 				.findElements(By.xpath("//ul[contains(@class,'pagination')]//a[contains(@href,'?page=')]"));
 		int totalPages = 1;
@@ -169,7 +167,7 @@ public class RecipeScraperTest extends BaseClass {
 		for (String handle : allWindows) {
 			if (handle.equals(handleToClose)) {
 				driver.switchTo().window(handle);
-				driver.close(); // This closes the tab
+				driver.close(); 
 				break;
 			}
 		}
@@ -261,24 +259,24 @@ public class RecipeScraperTest extends BaseClass {
 	}
 
 	// LFVNot fully Vegan
-
 	public void filterLFVNotFullyVegan(List<Recipe> recipeList) {
-
 		ExcelData.LoadLFVData();
 		DBConnection.initConnection();
-
-		Set<Recipe> lfvNotFullyVegan = recipeList.stream().filter(
-				recipe -> ExcelData.LFVAddnotfullyvegan.stream().noneMatch(value -> recipe.ingredients.contains(value)))
-				.collect(Collectors.toSet());
-		System.out.println("Number of LFV_NotFully_Vegan: " + lfvNotFullyVegan.size());
-		for (Recipe recipe : lfvNotFullyVegan) {
+		Set<Recipe> lfvNotFullyVeganRecipes = recipeList.stream().filter(recipe -> {
+			boolean containsEliminate = ExcelData.LFVEliminate.stream()
+					.anyMatch(value -> recipe.ingredients.contains(value));
+			if (containsEliminate)
+				return false;
+			boolean containsAdd = ExcelData.LFVAddnotfullyvegan.stream().anyMatch(value -> recipe.ingredients.contains(value));
+			return containsAdd;
+		}).collect(Collectors.toSet());
+		System.out.println("Number of recipes for LFVNot fully Vegan table: " + lfvNotFullyVeganRecipes.size());
+		for (Recipe recipe : lfvNotFullyVeganRecipes) {
 			DBConnection.saveRecipeToDatabase(recipe, "LFV_NotFully_Vegan");
 		}
-		System.out.println("\nTotal " + lfvNotFullyVegan.size() + " recipes saved to database.");
 	}
 
 	public void filterLCHFElimination(List<Recipe> recipeList) {
-		// Load Excel data
 		ExcelData.LoadLCHFData();
 		DBConnection.initConnection();
 
@@ -297,7 +295,7 @@ public class RecipeScraperTest extends BaseClass {
 		System.out.println("Number of recipes for Eliminate table: " + eliminateList.size());
 
 		for (Recipe recipe : eliminateList) {
-			DBConnection.saveRecipeToDatabase(recipe, "LFV_elemination");
+			DBConnection.saveRecipeToDatabase(recipe, "LCHF_elemination");
 		}
 	}
 
@@ -324,14 +322,14 @@ public class RecipeScraperTest extends BaseClass {
 	public void filterLCHFAllergyNut(List<Recipe> recipeList) {
 		ExcelData.LoadLCHFData();
 		DBConnection.initConnection();
-		Set<Recipe> lfvAllergyNutRecipes = recipeList.stream().filter(
+		Set<Recipe> lchfAllergyNutRecipes = recipeList.stream().filter(
 				recipe -> ExcelData.LCHFAllergyNut.stream().noneMatch(value -> recipe.ingredients.contains(value)))
 				.collect(Collectors.toSet());
-		System.out.println("Number of fully vegan recipes: " + lfvAllergyNutRecipes.size());
-		for (Recipe recipe : lfvAllergyNutRecipes) {
+		System.out.println("Number of LCHFAllergyNut recipes: " + lchfAllergyNutRecipes.size());
+		for (Recipe recipe : lchfAllergyNutRecipes) {
 			DBConnection.saveRecipeToDatabase(recipe, "LCHF_Allergy_Nut");
 		}
-		System.out.println("\nTotal " + lfvAllergyNutRecipes.size() + " recipes saved to database.");
+		System.out.println("\nTotal " + lchfAllergyNutRecipes.size() + " recipes saved to database.");
 	}
 
 	public void filterLCHFAllergyMilk(List<Recipe> recipeList) {
@@ -342,14 +340,14 @@ public class RecipeScraperTest extends BaseClass {
 				.collect(Collectors.toSet());
 		System.out.println("Number of lCHFAllergymilk: " + lCHFAllergymilk.size());
 		for (Recipe recipe : lCHFAllergymilk) {
-			DBConnection.saveRecipeToDatabase(recipe, "LFV_Allergy_Milk");
+			DBConnection.saveRecipeToDatabase(recipe, "LCHF_Allergy_Milk");
 		}
 		System.out.println("\nTotal " + lCHFAllergymilk.size() + " recipes saved to database.");
 	}
 
 	public void filterLCHFRecipestoavoid(List<Recipe> recipeList) {
 
-		ExcelData.LoadLFVData();
+		ExcelData.LoadLCHFData();
 		DBConnection.initConnection();
 
 		Set<Recipe> recipesToAvoid = recipeList.stream().filter(recipe -> recipe.recipeDescription != null)
@@ -359,7 +357,7 @@ public class RecipeScraperTest extends BaseClass {
 				}).collect(Collectors.toSet());
 
 		for (Recipe recipe : recipesToAvoid) {
-			DBConnection.saveRecipeToDatabase(recipe, "LFV_Recipe_to_avoid");
+			DBConnection.saveRecipeToDatabase(recipe, "LCHF_Recipe_to_avoid");
 		}
 	}
 

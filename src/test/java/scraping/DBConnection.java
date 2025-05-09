@@ -41,11 +41,14 @@ public class DBConnection {
 			        "LFV_elemination",
 			        "LFV_to_add",
 			        "LFV_Allergy_Milk",
+			        "LFV_NotFully_Vegan",
 			        "LFV_Allergy_Nut",
 			        "LCHF_elemination",
 			        "LCHF_to_add",
 			        "LCHF_Allergy_Milk",
-			        "LCHF_Allergy_Nut"
+			        "LCHF_Allergy_Nut",
+			        "LCHF_Recipe_to_avoid",
+			        "LFV_Recipe_to_avoid"
 			    };
 
 			    for (String tableName : tableNames) {
