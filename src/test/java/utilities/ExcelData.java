@@ -6,21 +6,21 @@ import java.util.List;
 
 public class ExcelData {
 
-	public static List<String> LCHFEliminate = new ArrayList<String>();
-	public static List<String> LCHFAdd = new ArrayList<String>();
+	public static List<String> LCHFEliminate = new ArrayList<>();
+	public static List<String> LCHFAdd = new ArrayList<>();
 
-	public static List<String> LCHFAllergyMilk = new ArrayList<String>();
-	public static List<String> LCHFAllergyNut = new ArrayList<String>();
+	public static List<String> LCHFAllergyMilk = new ArrayList<>();
+	public static List<String> LCHFAllergyNut = new ArrayList<>();
 
-	public static List<String> LCHAvoid = new ArrayList<String>();
+	public static List<String> LCHAvoid = new ArrayList<>();
 
-	public static List<String> LFVEliminate = new ArrayList<String>();
-	public static List<String> LFVAdd = new ArrayList<String>();
-	public static List<String> LFVAllergyMilk = new ArrayList<String>();
-	public static List<String> LFVAllergyNut = new ArrayList<String>();
+	public static List<String> LFVEliminate = new ArrayList<>();
+	public static List<String> LFVAdd = new ArrayList<>();
+	public static List<String> LFVAllergyMilk = new ArrayList<>();
+	public static List<String> LFVAllergyNut = new ArrayList<>();
 
-	public static List<String> LFVAddnotfullyvegan = new ArrayList<String>();
-	public static List<String> LFVAvoid = new ArrayList<String>();
+	public static List<String> LFVAddnotfullyvegan = new ArrayList<>();
+	public static List<String> LFVAvoid = new ArrayList<>();
 	static String filePath = ".\\src\\test\\resources\\Data.xlsx";
 	static ExcelReader readexcel = new ExcelReader(filePath);
 
