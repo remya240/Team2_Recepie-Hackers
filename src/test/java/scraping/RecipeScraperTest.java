@@ -28,8 +28,12 @@ public class RecipeScraperTest extends BaseClass {
 		Thread.sleep(3000);
 
 		String recipeTab = driver.getWindowHandle();
-		int recipePages = getNumOfPages();
-		for (int j = 1; j <= recipePages; j++) {
+			int lastPage = getLastCompletedPage(); // <-- Start from here
+			int totalPages = getNumOfPages();
+			System.out.println("Resuming from page: " + (lastPage + 1) + " of " + totalPages);
+
+			for (int k = lastPage + 1; k <= totalPages; k++) {
+				  System.out.println("===== Scraping Page: " + k + " =====");
 			try {
 
 				List<WebElement> recipeBlocks = driver
@@ -73,6 +77,8 @@ public class RecipeScraperTest extends BaseClass {
 
 			} catch (Exception e) {
 				System.out.println("Error from tab: " + recipeTab);
+				System.err.println("Error on page " + k + ": " + e.getMessage());
+				break;
 			}
 
 			List<WebElement> nextRecipePageButton = driver
@@ -83,20 +89,8 @@ public class RecipeScraperTest extends BaseClass {
 				Thread.sleep(2000); 
 			}
 
-			int lastPage = getLastCompletedPage(); // <-- Start from here
-			int totalPages = getNumOfPages();
-			System.out.println("Resuming from page: " + (lastPage + 1) + " of " + totalPages);
-			for (int k = lastPage + 1; k <= totalPages; k++) {
-				System.out.println("===== Scraping Page: " + k + " =====");
-				try {
-					saveLastCompletedPage(k); 
-				} catch (Exception e) {
-					System.err.println("Error on page " + k + ": " + e.getMessage());
-					break;
-				}
-			}
-
 		}
+			
 		filterLFVElimination(recipeList);
 		Set<Recipe> afterlfvAddRecipes = filterLFVAdd(recipeList);
 		filterLFVAllergyNut(new ArrayList<>(afterlfvAddRecipes));
